@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Integrations\Stripe\Traits;
+namespace R64\Stripe\Traits;
 
 use Carbon\Carbon;
 use Illuminate\Support\Arr;

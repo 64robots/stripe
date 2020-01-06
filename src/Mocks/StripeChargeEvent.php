@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Integrations\Stripe\Mocks;
-
-use Faker\Factory;
+namespace R64\Stripe\Mocks;
 
 class StripeChargeEvent
 {

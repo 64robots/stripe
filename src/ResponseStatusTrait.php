@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Integrations\Stripe;
+namespace R64\Stripe;
 
 trait ResponseStatusTrait
 {

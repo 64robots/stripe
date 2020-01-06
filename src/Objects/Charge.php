@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Integrations\Stripe\Objects;
+namespace R64\Stripe\Objects;
 
-use App\Integrations\Stripe\Objects\Card;
 use Carbon\Carbon;
 
 class Charge

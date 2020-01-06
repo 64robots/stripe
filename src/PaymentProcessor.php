@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Integrations\Stripe;
+namespace R64\Stripe;
 
-use App\Integrations\Stripe\MockHandler;
-use App\Integrations\Stripe\StripeHandler;
-use Log;
+use R64\Stripe\MockHandler;
+use R64\Stripe\StripeHandler;
 
 class PaymentProcessor
 {

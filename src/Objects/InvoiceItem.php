@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Integrations\Stripe\Objects;
+namespace R64\Stripe\Objects;
 
-use App\Integrations\Stripe\Traits\ParsesTimestamp;
+use R64\Stripe\Traits\ParsesTimestamp;
 use Stripe\InvoiceItem as StripeInvoiceItem;
 
 class InvoiceItem

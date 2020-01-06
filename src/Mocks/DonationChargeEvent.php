@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Integrations\Stripe\Mocks;
+namespace R64\Stripe\Mocks;
 
 use App\Models\Donation;
 

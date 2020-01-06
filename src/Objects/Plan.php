@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Integrations\Stripe\Objects;
+namespace R64\Stripe\Objects;
 
 use Carbon\Carbon;
 use Stripe\Plan as StripePlan;

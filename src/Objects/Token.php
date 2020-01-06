@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Integrations\Stripe\Objects;
-
-use App\Integrations\Stripe\Traits\ParsesTimestamp;
+namespace R64\Stripe\Objects;
 
 class Token
 {

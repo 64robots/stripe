@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Integrations\Stripe;
+namespace R64\Stripe;
 
-use App\Integrations\Stripe\Objects\Card;
-use App\Integrations\Stripe\Objects\Charge;
-use App\Integrations\Stripe\Objects\Customer;
-use App\Integrations\Stripe\Objects\Invoice;
-use App\Integrations\Stripe\Objects\InvoiceItem;
-use App\Integrations\Stripe\Objects\Plan;
-use App\Integrations\Stripe\Objects\Product;
-use App\Integrations\Stripe\Objects\Subscription;
-use App\Integrations\Stripe\Objects\Token;
+use R64\Stripe\Objects\Card;
+use R64\Stripe\Objects\Charge;
+use R64\Stripe\Objects\Customer;
+use R64\Stripe\Objects\Invoice;
+use R64\Stripe\Objects\InvoiceItem;
+use R64\Stripe\Objects\Plan;
+use R64\Stripe\Objects\Product;
+use R64\Stripe\Objects\Subscription;
+use R64\Stripe\Objects\Token;
 use Exception;
 use Illuminate\Support\Arr;
-use Log;
 use Stripe\Charge as StripeCharge;
 use Stripe\Customer as StripeCustomer;
 use Stripe\Invoice as StripeInvoice;
