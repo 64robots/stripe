@@ -14,9 +14,10 @@ class PaymentProcessor
      */
     private $handler;
 
-    public function __construct(string $handlerSlug = 'default', $options = [])
+    public function __construct(StripeInterface $handler)
     {
-        $this->setHandler($handlerSlug, $options);
+        $this->handler = $handler;
+        //$this->setHandler($handlerSlug, $options);
     }
 
     /***************************************************************************************
@@ -184,7 +185,7 @@ class PaymentProcessor
     public function updateCardHolder($id, array $data)
     {
         $cardHolder = $this->handler->updateCardHolder($id, $data);
-        $this->recordAttemp();
+        $this->recordAttempt();
 
         return $cardHolder;
     }
@@ -193,7 +194,7 @@ class PaymentProcessor
      ** HELPERS
      ***************************************************************************************/
 
-    public function setHandler(string $slug, $options)
+    /* public function setHandler(string $slug, $options)
     {
         switch ($slug) {
             case 'stripe':
@@ -209,16 +210,16 @@ class PaymentProcessor
 
                 break;
         }
-    }
+    } */
 
-    public function getDefaultHandler($options = [])
+    /* public function getDefaultHandler($options = [])
     {
         if (config('stripe.mock')) {
             return new MockHandler($options);
         }
 
         return new StripeHandler($options);
-    }
+    } */
 
     public function recordAttempt()
     {
