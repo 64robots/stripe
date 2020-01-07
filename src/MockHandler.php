@@ -252,7 +252,7 @@ class MockHandler implements StripeInterface
 
     public function getCard(string $customerId, string $cardId)
     {
-        $stripeCardClass = $this->getMockStripeCard(['id' => $cardId]);
+        $stripeCardClass = $this->getMockStripeCard('retrieve', ['id' => $cardId]);
         $card = $stripeCardClass::retrieve($cardId, $this->stripeConnectParam());
 
         m::close();
@@ -264,7 +264,7 @@ class MockHandler implements StripeInterface
 
     public function createCard(array $params)
     {
-        $card = $this->getStripeCard($params);
+        $card = $this->getMockStripeCard('create', $params);
 
         m::close();
 
@@ -275,7 +275,7 @@ class MockHandler implements StripeInterface
 
     public function updateCard(string $customerId, string $cardId, array $params)
     {
-        $card = $this->getStripeCard($params);
+        $card = $this->getMockStripeCard('update', $params);
 
         m::close();
 
@@ -290,8 +290,8 @@ class MockHandler implements StripeInterface
 
     public function getCardHolder(string $id)
     {
-        $cardHolderClass = $this->getMockStripeCardHolder();
-        $cardHolder = $cardHolderClass::retreive(['id' => $id], $this->stripeConnectParam());
+        $cardHolderClass = $this->getMockStripeCardHolder('retrieve', ['id' => $id]);
+        $cardHolder = $cardHolderClass::retrieve(['id' => $id], $this->stripeConnectParam());
 
         m::close();
 
@@ -302,7 +302,7 @@ class MockHandler implements StripeInterface
 
     public function createCardHolder(array $params)
     {
-        $cardHolderClass = $this->getMockStripeCardHolder();
+        $cardHolderClass = $this->getMockStripeCardHolder('create', $params);
         $cardHolder = $cardHolderClass::create($params, $this->stripeConnectParam());
 
         m::close();
@@ -314,7 +314,7 @@ class MockHandler implements StripeInterface
 
     public function updateCardHolder(string $id, array $params)
     {
-        $cardHolderClass = $this->getMockStripeCardHolder();
+        $cardHolderClass = $this->getMockStripeCardHolder('update', $params);
         $cardHolder = $cardHolderClass::update($id, $params, $this->stripeConnectParam());
 
         m::close();
@@ -725,26 +725,36 @@ class MockHandler implements StripeInterface
      ** STRIPE CARD
      ***************************************************************************************/
 
-    private function getMockStripeCard($params = [])
+    private function getMockStripeCard(string $slug, $params = [])
     {
         $card = m::mock('alias:StripeCard');
 
-        // retrieve
-        $card
-            ->shouldReceive('retrieve')
-            ->with($params['id'], $this->stripeConnectParam())
-            ->andReturn($this->getStripeCard($params));
+        switch ($slug) {
+            case 'retrieve':
+                $card
+                    ->shouldReceive('retrieve')
+                    ->with($params['id'], $this->stripeConnectParam())
+                    ->andReturn($this->getStripeCard($params));
 
-        $card
-            ->shouldReceive('create')
-            ->with(['source' => Arr::get($params, 'source')], $this->stripeConnectParam())
-            ->andReturn($this->getStripeCard());
+            break;
 
-        $card
-            ->shouldReceive('update')
-            ->with($params, $this->stripeConnectParam())
-            ->andReturn($this->getStripeCard($params));
+            case 'create':
+                $card
+                    ->shouldReceive('create')
+                    ->with(['source' => Arr::get($params, 'source')], $this->stripeConnectParam())
+                    ->andReturn($this->getStripeCard());
 
+            break;
+
+            case 'update':
+                $card
+                    ->shouldReceive('update')
+                    ->with($params, $this->stripeConnectParam())
+                    ->andReturn($this->getStripeCard($params));
+
+            break;
+        }
+        
         $this->successful = true;
 
         return $card;
@@ -754,34 +764,42 @@ class MockHandler implements StripeInterface
      ** CARDHOLDER
      ***************************************************************************************/
 
-    private function getMockStripeCardHolder($params = [])
+    private function getMockStripeCardHolder(string $slug, $params = [])
     {
         $cardHolder = m::mock('alias:StripeCardHolder');
 
-        // retrieve
-        $cardHolder
-            ->shouldReceive('retrieve')
-            ->with($params['id'], $this->stripeConnectParam())
-            ->andReturn($this->getStripeCardHolder($params));
+        switch ($slug) {
+            case 'retrieve':
+                $cardHolder
+                    ->shouldReceive('retrieve')
+                    ->with($params['id'], $this->stripeConnectParam())
+                    ->andReturn($this->getStripeCardHolder($params));
 
-        // create
-        $cardHolder
-            ->shouldReceive('create')
-            ->with([
-                'billing' => $params['billing'],
-                'name' => $params['name'],
-                'type' => $params['type'],
-            ], $this->stripeConnectParam())
-            ->andReturn($this->getStripeCardHolder($params));
+                break;
 
-        // update
-        $cardHolder
-            ->shouldReceive('update')
-            ->with($params['id'], [
-                'billing' => $params['billing'],
-            ], $this->stripeConnectParam())
-            ->andReturn($this->getStripeCardHolder($params));
+            case 'create':
+                $cardHolder
+                    ->shouldReceive('create')
+                    ->with([
+                        'billing' => $params['billing'],
+                        'name' => $params['name'],
+                        'type' => $params['type'],
+                    ], $this->stripeConnectParam())
+                    ->andReturn($this->getStripeCardHolder($params));
 
+                break;
+
+            case 'update':
+                $cardHolder
+                    ->shouldReceive('update')
+                    ->with($params['id'], [
+                        'billing' => $params['billing'],
+                    ], $this->stripeConnectParam())
+                    ->andReturn($this->getStripeCardHolder($params));
+
+                break;
+        }
+        
         $this->successful = true;
 
         return $cardHolder;

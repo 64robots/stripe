@@ -2,54 +2,8 @@
 
 namespace R64\Stripe\Tests;
 
-use Faker\Factory;
-use R64\Stripe\PaymentProcessor;
-use Orchestra\Testbench\TestCase;
-use R64\Stripe\StripeServiceProvider;
-
-class PaymentProcessorTest extends TestCase
+class PaymentProcessorCustomerTest extends TestCase
 {
-    public $processor;
-
-    public $faker;
-
-    protected function getEnvironmentSetUp($app)
-    {
-        $app['config']->set('stripe.mock', true);
-    }
-
-    protected function getPackageProviders($app)
-    {
-        return [StripeServiceProvider::class];
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->processor = $this->app[PaymentProcessor::class];
-        $this->faker = Factory::create();
-    }
-
-    /**
-     * @test
-     */
-    public function can_charge_stripe_account()
-    {
-        $this->assertTrue(true);
-
-        $this->processor->createCharge([
-            'customer' => 1,
-            'amount' => 10,
-            'currency' => 'usd',
-            'source' => 'tok_visa'
-        ]);
-        
-        $this->assertTrue($this->processor->attemptSuccessful());
-        $this->assertEquals('', $this->processor->getErrorMessage());
-        $this->assertEquals('', $this->processor->getErrorType());
-    }
-
     /**
      * @test
      */
