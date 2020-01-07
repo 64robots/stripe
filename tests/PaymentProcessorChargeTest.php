@@ -7,7 +7,7 @@ class PaymentProcessorChargeTest extends TestCase
     /**
      * @test
      */
-    public function can_create_invoice_item()
+    public function can_create_charge()
     {
         $this->processor->createCharge([
             'customer' => 1,

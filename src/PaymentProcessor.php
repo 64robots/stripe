@@ -17,7 +17,6 @@ class PaymentProcessor
     public function __construct(StripeInterface $handler)
     {
         $this->handler = $handler;
-        //$this->setHandler($handlerSlug, $options);
     }
 
     /***************************************************************************************
@@ -193,33 +192,6 @@ class PaymentProcessor
     /***************************************************************************************
      ** HELPERS
      ***************************************************************************************/
-
-    /* public function setHandler(string $slug, $options)
-    {
-        switch ($slug) {
-            case 'stripe':
-                $this->handler = new StripeHandler($options);
-
-                break;
-            case 'mock':
-                $this->handler = new MockHandler($options);
-
-                break;
-            case 'default':
-                $this->handler = $this->getDefaultHandler($options);
-
-                break;
-        }
-    } */
-
-    /* public function getDefaultHandler($options = [])
-    {
-        if (config('stripe.mock')) {
-            return new MockHandler($options);
-        }
-
-        return new StripeHandler($options);
-    } */
 
     public function recordAttempt()
     {
