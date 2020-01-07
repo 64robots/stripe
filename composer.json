@@ -44,5 +44,7 @@
                 "R64\\Stripe\\StripeServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

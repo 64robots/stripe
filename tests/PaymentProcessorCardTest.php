@@ -23,7 +23,7 @@ class PaymentProcessorCardTest extends TestCase
     /**
      * @test
      */
-    public function can_card_details()
+    public function can_get_card_details()
     {
         $card = $this->processor->getCard(1, 1);
 
