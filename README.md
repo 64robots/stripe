@@ -3,15 +3,21 @@ Add stripe integration to laravel applications
 
 This package makes it easier to add stripe integrations to laravel applications
 
-## Installation
+## Installation and setup
 
 To get the latest version, simply require the package using [Composer](https://getcomposer.org):
 
 ```bash
-$ composer require R64/stripe
+$ composer require 64robots/stripe
 ```
 
-Once installed, if you are not using automatic package discovery, then you need to register the `R64\Stripe\StripeServiceProvider` service provider in your `config/app.php`.
+Once installed, this package will automatically register its service provider.
+
+To publish the config file to `config/stripe.php` run:
+
+```bash
+$ php artisan vendor:publish --provider="R64\Stripe\StripeServiceProvider" --tag="config"
+```
 
 ## Usage
 The class you'd propably interact with the most is `PaymentProcessor` class. The processor class can be injected into other classes or can be resolved from the container.
