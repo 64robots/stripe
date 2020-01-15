@@ -3,7 +3,7 @@
 return [
 
     /**
-     * Indicates whether to mock stripe calls
+     * Indicates whether to mock stripe api calls
      */
     'mock' => env('MOCK_PAYMENTS', true),
 
