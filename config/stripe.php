@@ -3,29 +3,24 @@
 return [
 
     /**
-     * Indicate whether to ran stripe in sandbox mode
+     * Indicates whether to mock stripe calls
+     */
+    'mock' => env('MOCK_PAYMENTS', true),
+
+    /**
+     * Indicates whether to ran stripe in sandbox mode
      */
     'sandbox' => env('STRIPE_SANDBOX', true),
 
     /**
-     * Stripe production public key
+     * Stripe public key
      */
-    'prod_public_key' => env('STRIPE_PROD_PUBLIC_KEY'),
+    'key' => env('STRIPE_SANDBOX', true) ? env('STRIPE_SANDBOX_PUBLIC_KEY') : env('STRIPE_PROD_PUBLIC_KEY'),
 
     /**
-     * Stripe production secret key
+     * Stripe secret key
      */
-    'prod_secret_key' => env('STRIPE_PROD_SECRET_KEY'),
-
-    /**
-     * Stripe sandbox public key
-     */
-    'sandbox_public_key' => env('STRIPE_SANDBOX_PUBLIC_KEY'),
-
-    /**
-     * Stripe sandbox secret key
-     */
-    'sandbox_secret_key' => env('STRIPE_SANDBOX_SECRET_KEY'),
+    'secret' => env('STRIPE_SANDBOX', true) ? env('STRIPE_SANDBOX_SECRET_KEY') : env('STRIPE_PROD_SECRET_KEY'),
 
     /**
      * Stripe connect id
