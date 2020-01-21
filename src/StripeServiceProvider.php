@@ -16,7 +16,7 @@ class StripeServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(StripeInterface::class, function ($app) {
-            $options['secret_key'] = $app['config']->get('stripe.key');
+            $options['secret_key'] = $app['config']->get('stripe.secret');
             $options['stripe_connect_id'] = $app['config']->get('stripe.connect_id') ?? $app->request->get('stripe_connect_id');
             $options['skip_stripe_connect'] = $app['config']->get('stripe.skip_connect') ?? $app->request->get('skip_stripe_connect', true);
 
