@@ -419,7 +419,7 @@ class StripeHandler implements StripeInterface
         $err = $body['error'];
 
         $this->successful = false;
-        $this->message = Arr::get($err, 'error', $altMessage);
+        $this->message = Arr::get($err, 'message', $altMessage);
         $this->errorType = Arr::get($err, 'type', $altType);
     }
 
