@@ -410,7 +410,7 @@ class StripeHandler implements StripeInterface
             $this->successful = false;
             $this->message = $e->getMessage();
             $this->errorType = 'unkown_exception';
-            $this->statusCode = $e->getHttpStatus();
+            $this->statusCode = $e->getCode();
             $this->exception = $e;
         }
     }
