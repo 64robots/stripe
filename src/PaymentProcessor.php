@@ -198,5 +198,7 @@ class PaymentProcessor
         $this->successful = $this->handler->attemptSuccessful();
         $this->message = $this->handler->getErrorMessage();
         $this->errorType = $this->handler->getErrorType();
+        $this->statusCode = $this->handler->getStatusCode();
+        $this->exception = $this->handler->getStripeException();
     }
 }

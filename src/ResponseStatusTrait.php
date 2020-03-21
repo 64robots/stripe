@@ -10,6 +10,10 @@ trait ResponseStatusTrait
 
     private $errorType = null;
 
+    private $statusCode = null;
+
+    private $exception = null;
+
     public function attemptSuccessful()
     {
         return $this->successful;
@@ -23,5 +27,15 @@ trait ResponseStatusTrait
     public function getErrorType()
     {
         return $this->errorType;
+    }
+
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
+    public function getStripeException()
+    {
+        return $this->exception;
     }
 }

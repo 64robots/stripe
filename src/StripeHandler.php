@@ -118,7 +118,7 @@ class StripeHandler implements StripeInterface
     {
         $customers = $this->listCustomers(['email' => $params['email']]);
         if (! $customers->count() == 1) {
-            abort(400, 'Cannot update customer: '.$customers->count());
+            throw new Exception('Cannot update customer: '.$customers->count(), 400);
         }
         $customer = $customers->first();
         $updatedCustomer = $this->attemptRequest('update-customer', $customer->id, $params);
@@ -410,6 +410,8 @@ class StripeHandler implements StripeInterface
             $this->successful = false;
             $this->message = $e->getMessage();
             $this->errorType = 'unkown_exception';
+            $this->statusCode = $e->getHttpStatus();
+            $this->exception = $e;
         }
     }
 
@@ -421,6 +423,8 @@ class StripeHandler implements StripeInterface
         $this->successful = false;
         $this->message = Arr::get($err, 'message', $altMessage);
         $this->errorType = Arr::get($err, 'type', $altType);
+        $this->statusCode = $e->getHttpStatus();
+        $this->exception = $e;
     }
 
     public function stripeConnectParam()
