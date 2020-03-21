@@ -394,17 +394,17 @@ class StripeHandler implements StripeInterface
             $this->successful = true;
 
             return $data;
-        } catch (\Stripe\Error\Card $e) {
+        } catch (\Stripe\Exception\CardException $e) {
             $this->recordError($e, 'Card Error', 'card_error');
-        } catch (\Stripe\Error\RateLimit $e) {
+        } catch (\Stripe\Exception\RateLimitException $e) {
             $this->recordError($e, 'Rate limit exceeded', 'rate_limit_error');
-        } catch (\Stripe\Error\InvalidRequest $e) {
+        } catch (\Stripe\Exception\InvalidRequestException $e) {
             $this->recordError($e, 'Invalid request data', 'invalid_request_error');
-        } catch (\Stripe\Error\Authentication $e) {
+        } catch (\Stripe\Exception\AuthenticationException $e) {
             $this->recordError($e, 'Authentication error', 'authentication_error');
-        } catch (\Stripe\Error\ApiConnection $e) {
+        } catch (\Stripe\Exception\ApiConnectionException $e) {
             $this->recordError($e, 'API connection error', 'api_connection_error');
-        } catch (\Stripe\Error\Base $e) {
+        } catch (\Stripe\Exception\ApiErrorException $e) {
             $this->recordError($e, 'General Stripe error', 'general_stripe_error');
         } catch (Exception $e) {
             $this->successful = false;
