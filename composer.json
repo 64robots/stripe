@@ -9,8 +9,8 @@
     "license": "MIT",
     "require": {
         "php": "^7.1",
-        "illuminate/support": "^6.0|^7.0",
-        "illuminate/container": "^6.0|^7.0",
+        "illuminate/support": "^5.0|^6.0|^7.0",
+        "illuminate/container": "^5.0|^6.0|^7.0",
         "fzaninotto/faker": "^1.4",
         "stripe/stripe-php": "^7.27"
     },
