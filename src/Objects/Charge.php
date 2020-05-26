@@ -16,6 +16,8 @@ class Charge
 
     public $card_id;
 
+    public $stripeCharge;
+
     public function __construct($charge = null)
     {
         if ($charge && get_class($charge) === 'Stripe\Charge') {
@@ -31,5 +33,6 @@ class Charge
         $this->currency = $charge->currency;
         $this->created = Carbon::createFromTimestamp($charge->created);
         $this->card = new Card($charge->source);
+        $this->stripeCharge = $charge;
     }
 }
