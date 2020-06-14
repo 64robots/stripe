@@ -2,6 +2,7 @@
 
 namespace R64\Stripe;
 
+use R64\Stripe\Mocks\MockHandler;
 use Illuminate\Support\ServiceProvider;
 
 class StripeServiceProvider extends ServiceProvider
