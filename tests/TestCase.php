@@ -3,8 +3,8 @@
 namespace R64\Stripe\Tests;
 
 use Faker\Factory;
-use R64\Stripe\PaymentProcessor;
 use R64\Stripe\StripeServiceProvider;
+use R64\Stripe\Processor\StripeProcessor;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
@@ -27,7 +27,8 @@ class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $this->processor = $this->app[PaymentProcessor::class];
+        $this->processor = $this->app[StripeProcessor::class];
+        
         $this->faker = Factory::create();
     }
 }

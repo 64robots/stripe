@@ -2,8 +2,11 @@
 
 namespace R64\Stripe\Adapters;
 
+use R64\Stripe\Traits\ParsesTimestamp;
 class Token
 {
+    use ParsesTimestamp;
+
     public $id;
 
     public $object;
@@ -17,7 +20,7 @@ class Token
     public function __construct($token = null)
     {
         if ($token && get_class($token) === 'Stripe\Token') {
-            $this->setFromStripe($oken);
+            $this->setFromStripe($token);
         }
     }
 

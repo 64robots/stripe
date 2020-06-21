@@ -2,7 +2,7 @@
 
 namespace R64\Stripe\Tests;
 
-class PaymentProcessorSubscriptionTest extends TestCase
+class SubscriptionTest extends TestCase
 {
     /**
      * @test
