@@ -1,6 +1,6 @@
 <?php
 
-namespace R64\Stripe\Objects;
+namespace R64\Stripe\Adapters;
 
 use Carbon\Carbon;
 

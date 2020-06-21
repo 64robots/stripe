@@ -6,7 +6,7 @@ use Mockery as m;
 use Faker\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use R64\Stripe\Objects\Customer;
+use R64\Stripe\Adapters\Customer;
 use Stripe\Customer as StripeCustomer;
 
 trait CustomerMock

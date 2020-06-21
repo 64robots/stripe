@@ -4,7 +4,7 @@ namespace R64\Stripe\Mocks;
 
 use Mockery as m;
 use Faker\Factory;
-use R64\Stripe\Objects\Charge;
+use R64\Stripe\Adapters\Charge;
 use Stripe\Charge as StripeCharge;
 
 trait ChargeMock

@@ -6,7 +6,7 @@ use Mockery as m;
 use Faker\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use R64\Stripe\Objects\CardHolder;
+use R64\Stripe\Adapters\CardHolder;
 use Stripe\Issuing\Cardholder as StripeCardHolder;
 
 trait CardHolderMock

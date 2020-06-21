@@ -17,7 +17,7 @@ class PaymentProcessorSubscriptionTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Product', get_class($product));
+        $this->assertEquals('R64\Stripe\Adapters\Product', get_class($product));
     }
 
     /**
@@ -37,7 +37,7 @@ class PaymentProcessorSubscriptionTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Plan', get_class($plan));
+        $this->assertEquals('R64\Stripe\Adapters\Plan', get_class($plan));
     }
 
     /**
@@ -58,7 +58,7 @@ class PaymentProcessorSubscriptionTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Subscription', get_class($subscription));
+        $this->assertEquals('R64\Stripe\Adapters\Subscription', get_class($subscription));
     }
 
     /**
@@ -74,7 +74,7 @@ class PaymentProcessorSubscriptionTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Invoice', get_class($invoice));
+        $this->assertEquals('R64\Stripe\Adapters\Invoice', get_class($invoice));
     }
 
     /**
@@ -92,7 +92,7 @@ class PaymentProcessorSubscriptionTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\InvoiceItem', get_class($invoiceItem));
+        $this->assertEquals('R64\Stripe\Adapters\InvoiceItem', get_class($invoiceItem));
     }
 
     /**
@@ -105,7 +105,7 @@ class PaymentProcessorSubscriptionTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Invoice', get_class($invoice));
+        $this->assertEquals('R64\Stripe\Adapters\Invoice', get_class($invoice));
     }
 
     /**
@@ -118,6 +118,6 @@ class PaymentProcessorSubscriptionTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Subscription', get_class($subscription));
+        $this->assertEquals('R64\Stripe\Adapters\Subscription', get_class($subscription));
     }
 }

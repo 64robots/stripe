@@ -2,15 +2,15 @@
 
 namespace R64\Stripe;
 
-use R64\Stripe\Objects\Card;
-use R64\Stripe\Objects\Charge;
-use R64\Stripe\Objects\Customer;
-use R64\Stripe\Objects\Invoice;
-use R64\Stripe\Objects\InvoiceItem;
-use R64\Stripe\Objects\Plan;
-use R64\Stripe\Objects\Product;
-use R64\Stripe\Objects\Subscription;
-use R64\Stripe\Objects\Token;
+use R64\Stripe\Adapters\Card;
+use R64\Stripe\Adapters\Charge;
+use R64\Stripe\Adapters\Customer;
+use R64\Stripe\Adapters\Invoice;
+use R64\Stripe\Adapters\InvoiceItem;
+use R64\Stripe\Adapters\Plan;
+use R64\Stripe\Adapters\Product;
+use R64\Stripe\Adapters\Subscription;
+use R64\Stripe\Adapters\Token;
 use Exception;
 use Illuminate\Support\Arr;
 use Stripe\Charge as StripeCharge;

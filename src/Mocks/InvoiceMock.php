@@ -5,7 +5,7 @@ namespace R64\Stripe\Mocks;
 use Mockery as m;
 use Faker\Factory;
 use Illuminate\Support\Arr;
-use R64\Stripe\Objects\Invoice;
+use R64\Stripe\Adapters\Invoice;
 use Stripe\Invoice as StripeInvoice;
 
 trait InvoiceMock

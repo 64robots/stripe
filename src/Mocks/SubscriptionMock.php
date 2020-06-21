@@ -6,7 +6,7 @@ use Mockery as m;
 use Faker\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use R64\Stripe\Objects\Subscription;
+use R64\Stripe\Adapters\Subscription;
 use Stripe\Subscription as StripeSubscription;
 
 trait SubscriptionMock

@@ -3,7 +3,7 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use R64\Stripe\Objects\InvoiceItem;
+use R64\Stripe\Adapters\InvoiceItem;
 use Stripe\InvoiceItem as StripeInvoiceItem;
 
 trait InvoiceItemMock

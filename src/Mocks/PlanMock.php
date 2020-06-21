@@ -4,7 +4,7 @@ namespace R64\Stripe\Mocks;
 
 use Mockery as m;
 use Faker\Factory;
-use R64\Stripe\Objects\Plan;
+use R64\Stripe\Adapters\Plan;
 use Stripe\Plan as StripePlan;
 
 trait PlanMock

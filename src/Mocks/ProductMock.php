@@ -4,7 +4,7 @@ namespace R64\Stripe\Mocks;
 
 use Mockery as m;
 use Faker\Factory;
-use R64\Stripe\Objects\Product;
+use R64\Stripe\Adapters\Product;
 use Stripe\Product as StripeProduct;
 
 trait ProductMock

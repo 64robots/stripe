@@ -16,7 +16,7 @@ class PaymentProcessorCardTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Card', get_class($card));
+        $this->assertEquals('R64\Stripe\Adapters\Card', get_class($card));
 
     }
 
@@ -30,7 +30,7 @@ class PaymentProcessorCardTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Card', get_class($card));
+        $this->assertEquals('R64\Stripe\Adapters\Card', get_class($card));
     }
 
     /**
@@ -43,6 +43,6 @@ class PaymentProcessorCardTest extends TestCase
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
-        $this->assertEquals('R64\Stripe\Objects\Card', get_class($card));
+        $this->assertEquals('R64\Stripe\Adapters\Card', get_class($card));
     }
 }

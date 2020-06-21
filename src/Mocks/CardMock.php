@@ -5,7 +5,7 @@ namespace R64\Stripe\Mocks;
 use Mockery as m;
 use Faker\Factory;
 use Illuminate\Support\Arr;
-use R64\Stripe\Objects\Card;
+use R64\Stripe\Adapters\Card;
 use Stripe\Card as StripeCard;
 
 trait CardMock
