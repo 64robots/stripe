@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use R64\Stripe\Adapters\CardHolder;
@@ -90,23 +89,21 @@ trait CardHolderMock
 
     protected function getStripeCardHolder(array $params)
     {
-        $faker = Factory::create();
-
         $holder = new StripeCardHolder(['id' => Arr::get($params, 'id', 'ich_'.Str::random(8))]);
         $holder->object = 'issuing.cardholder';
-        $holder->email = Arr::get($params, 'email', $faker->unique()->safeEmail);
+        $holder->email = Arr::get($params, 'email', $this->faker->unique()->safeEmail);
         $holder->type = Arr::get($params, 'type', 'individual');
-        $holder->name = Arr::get($params, 'name', $faker->name);
+        $holder->name = Arr::get($params, 'name', $this->faker->name);
         $holder->phone_number = Arr::get($params, 'phone_number');
         $holder->status = Arr::get($params, 'status', 'active');
         $holder->billing = (object) [
             'address' => (object) [
-                'line1' => Arr::get($params, 'billing.address.line1', $faker->streetAddress),
-                'line2' => Arr::get($params, 'billing.address.line2', $faker->secondaryAddress),
-                'city' => Arr::get($params, 'billing.address.city', $faker->city),
-                'state' => Arr::get($params, 'billing.address.state', $faker->stateAbbr),
-                'postal_code' => Arr::get($params, 'billing.address.postal_code', $faker->postcode),
-                'country' => Arr::get($params, 'billing.address.country', $faker->countryCode),
+                'line1' => Arr::get($params, 'billing.address.line1', $this->faker->streetAddress),
+                'line2' => Arr::get($params, 'billing.address.line2', $this->faker->secondaryAddress),
+                'city' => Arr::get($params, 'billing.address.city', $this->faker->city),
+                'state' => Arr::get($params, 'billing.address.state', $this->faker->stateAbbr),
+                'postal_code' => Arr::get($params, 'billing.address.postal_code', $this->faker->postcode),
+                'country' => Arr::get($params, 'billing.address.country', $this->faker->countryCode),
             ],
         ];
         $holder->metadata = (object) Arr::get($params, 'metadata', []);

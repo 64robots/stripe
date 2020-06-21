@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use R64\Stripe\Adapters\Charge;
 use Stripe\Charge as StripeCharge;
 
@@ -62,8 +61,6 @@ trait ChargeMock
 
     protected function getStripeCharge($params)
     {
-        $faker = Factory::create();
-
         $charge = new StripeCharge(['id' => 'ch_1']);
         $charge->amount = $params['amount'];
         $charge->currency = $params['currency'];
@@ -71,10 +68,10 @@ trait ChargeMock
         $charge->source = (object) [
             'id' => 'card_1',
             'object' => 'card',
-            'name' => $faker->name,
-            'brand' => $faker->creditCardType,
+            'name' => $this->faker->name,
+            'brand' => $this->faker->creditCardType,
             'last4' => '4242',
-            'exp_month' => $faker->numberBetween(1, 12),
+            'exp_month' => $this->faker->numberBetween(1, 12),
             'exp_year' => now()->addYear()->year,
             'country' => 'US',
         ];

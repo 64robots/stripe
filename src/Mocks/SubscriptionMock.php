@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use R64\Stripe\Adapters\Subscription;
@@ -62,22 +61,21 @@ trait SubscriptionMock
     {
         $subscription = new StripeSubscription(['id' => 'sub_1']);
 
-        $faker = Factory::create();
         $subscription->plan = (object) [
             'id' => count($params) ? $params['items']['0']['plan'] : 'plan_'.Str::random(10),
             'amount' => 2500,
         ];
         $subscription->customer = count($params) ? $params['customer'] : 'cus_'.Str::random(10);
         $subscription->quantity = 1;
-        $subscription->billing = $faker->numberBetween(10, 100);
-        $subscription->discount = $faker->numberBetween(10, 100);
+        $subscription->billing = $this->faker->numberBetween(10, 100);
+        $subscription->discount = $this->faker->numberBetween(10, 100);
         $subscription->cancel_at_period_end = false;
         $subscription->billing_cycle_anchor = now()->addDays(10)->timestamp;
         $subscription->ended_at = now()->addDays(30)->timestamp;
         $subscription->canceled_at = now()->addDays(30)->timestamp;
         $subscription->current_period_end = now()->addDays(30)->timestamp;
         $subscription->current_period_start = time();
-        $subscription->days_until_due = $faker->numberBetween(1, 30);
+        $subscription->days_until_due = $this->faker->numberBetween(1, 30);
         $subscription->created = time();
 
         return $subscription;

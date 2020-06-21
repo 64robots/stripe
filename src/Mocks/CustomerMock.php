@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use R64\Stripe\Adapters\Customer;
@@ -109,13 +108,12 @@ trait CustomerMock
 
     private function setParams(array $params)
     {
-        $faker = Factory::create();
         $params['id'] = $params['id'] ?? 'cus_uRBZyegl'; // 'cus_' . Str::random(8);
-        $params['description'] = $params['description'] ?? $faker->paragraph;
+        $params['description'] = $params['description'] ?? $this->faker->paragraph;
         $params['source'] = 'tok_visa';
-        $params['email'] = $params['email'] ?? $faker->safeEmail;
-        $params['metadata']['first_name'] = $params['metadata']['first_name'] ?? $faker->firstName;
-        $params['metadata']['last_name'] = $params['metadata']['last_name'] ?? $faker->lastName;
+        $params['email'] = $params['email'] ?? $this->faker->safeEmail;
+        $params['metadata']['first_name'] = $params['metadata']['first_name'] ?? $this->faker->firstName;
+        $params['metadata']['last_name'] = $params['metadata']['last_name'] ?? $this->faker->lastName;
 
         return $params;
     }
@@ -126,11 +124,9 @@ trait CustomerMock
             'id' => Arr::get($params, 'id', 'cus_'.Str::random(8)),
         ]);
 
-        $faker = Factory::create();
-
         $default_source = 1;
-        $customer->description = Arr::get($params, 'description', $faker->firstName.' '.$faker->lastName);
-        $customer->email = Arr::get($params, 'email', $faker->unique()->safeEmail);
+        $customer->description = Arr::get($params, 'description', $this->faker->firstName.' '.$this->faker->lastName);
+        $customer->email = Arr::get($params, 'email', $this->faker->unique()->safeEmail);
         $customer->default_source = null;
         $customer->created = time();
         $customer->metadata = [];

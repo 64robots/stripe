@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use R64\Stripe\Adapters\Plan;
 use Stripe\Plan as StripePlan;
 
@@ -51,14 +50,13 @@ trait PlanMock
     {
         $plan = new StripePlan(['id' => 1]);
 
-        $faker = Factory::create();
         $plan->product = count($params) ? $params['product'] : 1;
-        $plan->nickname = count($params) ? $params['nickname'] : $faker->word;
-        $plan->amount = count($params) ? $params['amount'] : $faker->numberBetween(1000, 5000);
+        $plan->nickname = count($params) ? $params['nickname'] : $this->faker->word;
+        $plan->amount = count($params) ? $params['amount'] : $this->faker->numberBetween(1000, 5000);
         $plan->interval = count($params) ? $params['interval'] : 'month';
-        $plan->interval_count = $faker->numberBetween(1, 6);
+        $plan->interval_count = $this->faker->numberBetween(1, 6);
         $plan->billing_scheme = count($params) ? $params['billing_scheme'] : 'per_unit';
-        $plan->usage_type = $faker->word;
+        $plan->usage_type = $this->faker->word;
         $plan->currency = count($params) ? $params['currency'] : 'usd';
         $plan->created = time();
 

@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use R64\Stripe\Adapters\Product;
 use Stripe\Product as StripeProduct;
 
@@ -47,9 +46,8 @@ trait ProductMock
     {
         $product = new StripeProduct(['id' => 1]);
 
-        $faker = Factory::create();
-        $product->name = count($params) ? $params['name'] : $faker->word;
-        $product->description = $faker->paragraph;
+        $product->name = count($params) ? $params['name'] : $this->faker->word;
+        $product->description = $this->faker->paragraph;
         $product->created = time();
 
         return $product;

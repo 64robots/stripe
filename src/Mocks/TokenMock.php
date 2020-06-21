@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use R64\Stripe\Adapters\Token;
 use Stripe\Token as StripeToken;
 
@@ -44,7 +43,6 @@ trait TokenMock
     {
         $token = new StripeToken(['id' => 'tok_1234']);
 
-        $faker = Factory::create();
         $token->object = 'token';
         $token->type = 'card';
         $token->created = time();

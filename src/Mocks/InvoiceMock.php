@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use Illuminate\Support\Arr;
 use R64\Stripe\Adapters\Invoice;
 use Stripe\Invoice as StripeInvoice;
@@ -61,11 +60,10 @@ trait InvoiceMock
     {
         $invoice = new StripeInvoice(['id' => 1]);
 
-        $faker = Factory::create();
-        $invoice->amount_paid = $faker->numberBetween(100, 1000);
+        $invoice->amount_paid = $this->faker->numberBetween(100, 1000);
         $invoice->currency = 'usd';
         $invoice->subscription = 1;
-        $invoice->receipt_number = $faker->randomNumber();
+        $invoice->receipt_number = $this->faker->randomNumber();
         $invoice->date = time();
 
         return $invoice;

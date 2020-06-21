@@ -3,7 +3,6 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
-use Faker\Factory;
 use Illuminate\Support\Arr;
 use R64\Stripe\Adapters\Card;
 use Stripe\Card as StripeCard;
@@ -83,16 +82,14 @@ trait CardMock
     {
         $card = new StripeCard(['id' => 'card_1234']);
 
-        $faker = Factory::create();
-
         // general info
-        $card->brand = $faker->creditCardType;
+        $card->brand = $this->faker->creditCardType;
         $card->object = 'card';
         $card->country = 'US';
         $card->customer = 'cus_1';
         $card->name = null;
         $card->last4 = '4242';
-        $card->exp_month = $faker->numberBetween(1, 12);
+        $card->exp_month = $this->faker->numberBetween(1, 12);
         $card->exp_year = now()->addYear()->year;
 
         // address
