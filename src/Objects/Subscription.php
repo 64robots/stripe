@@ -37,6 +37,8 @@ class Subscription
 
     public $created;
 
+    public $stripeSubscription;
+
     public function __construct($subscription = null)
     {
         if ($subscription && get_class($subscription) === 'Stripe\Subscription') {
@@ -65,5 +67,6 @@ class Subscription
         $this->current_period_end = $this->carbonFromTimestamp($subscription->current_period_end);
         $this->current_period_start = $this->carbonFromTimestamp($subscription->current_period_start);
         $this->created = $this->carbonFromTimestamp($subscription->created);
+        $this->stripeSubscription = $subscription;
     }
 }
