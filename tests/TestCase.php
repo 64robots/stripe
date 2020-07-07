@@ -13,6 +13,15 @@ class TestCase extends BaseTestCase
 
     public $faker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->processor = $this->app[StripeProcessor::class];
+
+        $this->faker = Factory::create();
+    }
+
     protected function getEnvironmentSetUp($app)
     {
         $app['config']->set('stripe.mock', true);
@@ -21,14 +30,5 @@ class TestCase extends BaseTestCase
     protected function getPackageProviders($app)
     {
         return [StripeServiceProvider::class];
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->processor = $this->app[StripeProcessor::class];
-        
-        $this->faker = Factory::create();
     }
 }
