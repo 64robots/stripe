@@ -4,9 +4,7 @@ namespace R64\Stripe\Tests;
 
 class ChargeTest extends TestCase
 {
-    /**
-     * @test
-     */
+    /** @test */
     public function can_create_charge()
     {
         $this->processor->createCharge([

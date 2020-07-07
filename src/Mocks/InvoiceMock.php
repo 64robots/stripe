@@ -4,6 +4,7 @@ namespace R64\Stripe\Mocks;
 
 use Mockery as m;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use R64\Stripe\Adapters\Invoice;
 use Stripe\Invoice as StripeInvoice;
 
@@ -11,7 +12,7 @@ trait InvoiceMock
 {
     public function createInvoice(array $params)
     {
-        $stripeInvoice = $this->getMockStripeInvoice($params);
+        $stripeInvoice = $this->getMockStripeInvoice('create', $params);
         $invoice = $stripeInvoice::create($params, $this->stripeConnectParam());
 
         m::close();
@@ -23,7 +24,7 @@ trait InvoiceMock
 
     public function getInvoice(string $id)
     {
-        $stripeInvoice = $this->getMockStripeInvoice();
+        $stripeInvoice = $this->getMockStripeInvoice('retrieve', ['id' => $id]);
         $invoice = $stripeInvoice::retrieve($id, $this->stripeConnectParam());
 
         m::close();
@@ -33,23 +34,27 @@ trait InvoiceMock
         }
     }
 
-    private function getMockStripeInvoice($params = [])
+    private function getMockStripeInvoice(string $slug, $params = [])
     {
         $invoice = m::mock('alias:StripeInvoice');
 
-        if (Arr::get($params, 'customer')) {
-            $invoice
-                ->shouldReceive('create')
-                ->with([
-                    'customer' => $params['customer'],
-                    'subscription' => $params['subscription'],
-                ], $this->stripeConnectParam())
-                ->andReturn($this->getStripeInvoice());
-        }
+        switch ($slug) {
+            case 'create':
+                $invoice
+                    ->shouldReceive('create')
+                    ->with([
+                        'customer' => $params['customer'],
+                    ], $this->stripeConnectParam())
+                    ->andReturn($this->getStripeInvoice());
+                break;
 
-        $invoice
-            ->shouldReceive('retrieve')
-            ->andReturn($this->getStripeInvoice());
+            case 'retrieve':
+                $invoice
+                    ->shouldReceive('retrieve')
+                    ->with($params['id'], $this->stripeConnectParam())
+                    ->andReturn($this->getStripeInvoice());
+                break;
+        }
 
         $this->successful = true;
 
@@ -58,11 +63,11 @@ trait InvoiceMock
 
     private function getStripeInvoice()
     {
-        $invoice = new StripeInvoice(['id' => 1]);
+        $invoice = new StripeInvoice(['id' => 'in_' . Str::random(12)]);
 
         $invoice->amount_paid = $this->faker->numberBetween(100, 1000);
         $invoice->currency = 'usd';
-        $invoice->subscription = 1;
+        $invoice->subscription = 'sub_' . Str::random(12);
         $invoice->receipt_number = $this->faker->randomNumber();
         $invoice->date = time();
 

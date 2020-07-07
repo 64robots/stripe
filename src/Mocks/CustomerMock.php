@@ -109,11 +109,11 @@ trait CustomerMock
     private function setParams(array $params)
     {
         $params['id'] = $params['id'] ?? 'cus_uRBZyegl'; // 'cus_' . Str::random(8);
-        $params['description'] = $params['description'] ?? $this->faker->paragraph;
+        $params['description'] = Arr::get($params, 'description', $this->faker->paragraph);
         $params['source'] = 'tok_visa';
-        $params['email'] = $params['email'] ?? $this->faker->safeEmail;
-        $params['metadata']['first_name'] = $params['metadata']['first_name'] ?? $this->faker->firstName;
-        $params['metadata']['last_name'] = $params['metadata']['last_name'] ?? $this->faker->lastName;
+        $params['email'] = Arr::get($params, 'email', $this->faker->safeEmail);
+        $params['metadata']['first_name'] = Arr::get($params, 'metadata.first_name', $this->faker->firstName);
+        $params['metadata']['last_name'] = Arr::get($params, 'metadata.last_name', $this->faker->lastName);
 
         return $params;
     }
@@ -121,10 +121,10 @@ trait CustomerMock
     private function getStripeCustomer($params = [])
     {
         $customer = new StripeCustomer([
-            'id' => Arr::get($params, 'id', 'cus_'.Str::random(8)),
+            'id' => Arr::get($params, 'id', 'cus_'. Str::random(8)),
         ]);
 
-        $default_source = 1;
+        $default_source = 'card_' . Str::random(12);
         $customer->description = Arr::get($params, 'description', $this->faker->firstName.' '.$this->faker->lastName);
         $customer->email = Arr::get($params, 'email', $this->faker->unique()->safeEmail);
         $customer->default_source = null;

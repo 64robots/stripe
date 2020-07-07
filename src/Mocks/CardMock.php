@@ -4,15 +4,16 @@ namespace R64\Stripe\Mocks;
 
 use Mockery as m;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use R64\Stripe\Adapters\Card;
 use Stripe\Card as StripeCard;
 
 trait CardMock
 {
-    public function getCard(string $customerId, string $cardId)
+    public function getCard(string $id)
     {
-        $stripeCardClass = $this->getMockStripeCard('retrieve', ['id' => $cardId]);
-        $card = $stripeCardClass::retrieve($cardId, $this->stripeConnectParam());
+        $stripeCardClass = $this->getMockStripeCard('retrieve', ['id' => $id]);
+        $card = $stripeCardClass::retrieve($id, $this->stripeConnectParam());
 
         m::close();
 
@@ -80,7 +81,7 @@ trait CardMock
 
     private function getStripeCard(array $params = [])
     {
-        $card = new StripeCard(['id' => 'card_1234']);
+        $card = new StripeCard(['id' => 'card_' . Str::random(10)]);
 
         // general info
         $card->brand = $this->faker->creditCardType;

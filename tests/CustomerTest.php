@@ -4,9 +4,7 @@ namespace R64\Stripe\Tests;
 
 class CustomerTest extends TestCase
 {
-    /**
-     * @test
-     */
+    /** @test */
     public function can_create_customer()
     {   
         $firstName = $this->faker->firstName;
@@ -29,9 +27,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('', $this->processor->getErrorType());
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function can_update_customer()
     {
         $firstName = $this->faker->firstName;
@@ -51,9 +47,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('', $this->processor->getErrorType());
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function can_get_a_customer()
     {
         $this->processor->getCustomer(1);

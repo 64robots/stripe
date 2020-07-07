@@ -3,6 +3,7 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
+use Illuminate\Support\Str;
 use R64\Stripe\Adapters\Charge;
 use Stripe\Charge as StripeCharge;
 
@@ -61,12 +62,12 @@ trait ChargeMock
 
     protected function getStripeCharge($params)
     {
-        $charge = new StripeCharge(['id' => 'ch_1']);
+        $charge = new StripeCharge(['id' => 'ch_' . Str::random(12)]);
         $charge->amount = $params['amount'];
         $charge->currency = $params['currency'];
         $charge->created = time();
         $charge->source = (object) [
-            'id' => 'card_1',
+            'id' => 'card_' . Str::random(12),
             'object' => 'card',
             'name' => $this->faker->name,
             'brand' => $this->faker->creditCardType,

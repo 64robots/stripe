@@ -4,9 +4,7 @@ namespace R64\Stripe\Tests;
 
 class CardTest extends TestCase
 {
-    /**
-     * @test
-     */
+    /** @test */
     public function can_create_card()
     {
         $card = $this->processor->createCard([
@@ -20,9 +18,7 @@ class CardTest extends TestCase
 
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function can_get_card_details()
     {
         $card = $this->processor->getCard(1, 1);
@@ -33,9 +29,7 @@ class CardTest extends TestCase
         $this->assertEquals('R64\Stripe\Adapters\Card', get_class($card));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function can_update_card()
     {
         $card = $this->processor->updateCard(1, 1, []);

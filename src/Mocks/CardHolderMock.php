@@ -13,7 +13,7 @@ trait CardHolderMock
     public function getCardHolder(string $id)
     {
         $cardHolderClass = $this->getMockStripeCardHolder('retrieve', ['id' => $id]);
-        $cardHolder = $cardHolderClass::retrieve(['id' => $id], $this->stripeConnectParam());
+        $cardHolder = $cardHolderClass::retrieve($id, $this->stripeConnectParam());
 
         m::close();
 
@@ -37,7 +37,7 @@ trait CardHolderMock
     public function updateCardHolder(string $id, array $params)
     {
         $cardHolderClass = $this->getMockStripeCardHolder('update', $params);
-        $cardHolder = $cardHolderClass::update($id, $params, $this->stripeConnectParam());
+        $cardHolder = $cardHolderClass::update($id, $this->stripeConnectParam());
 
         m::close();
         
@@ -74,9 +74,7 @@ trait CardHolderMock
             case 'update':
                 $cardHolder
                     ->shouldReceive('update')
-                    ->with($params['id'], [
-                        'billing' => $params['billing'],
-                    ], $this->stripeConnectParam())
+                    ->with($params['id'], $this->stripeConnectParam())
                     ->andReturn($this->getStripeCardHolder($params));
 
                 break;
@@ -89,7 +87,8 @@ trait CardHolderMock
 
     protected function getStripeCardHolder(array $params)
     {
-        $holder = new StripeCardHolder(['id' => Arr::get($params, 'id', 'ich_'.Str::random(8))]);
+        $holder = new StripeCardHolder(['id' => Arr::get($params, 'id', 'ich_'. Str::random(12))]);
+
         $holder->object = 'issuing.cardholder';
         $holder->email = Arr::get($params, 'email', $this->faker->unique()->safeEmail);
         $holder->type = Arr::get($params, 'type', 'individual');

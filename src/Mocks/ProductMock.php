@@ -3,6 +3,8 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
+use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use R64\Stripe\Adapters\Product;
 use Stripe\Product as StripeProduct;
 
@@ -10,7 +12,7 @@ trait ProductMock
 {
     public function createProduct(array $params)
     {
-        $stripeProduct = $this->getMockStripeProduct('create-product', $params);
+        $stripeProduct = $this->getMockStripeProduct('create', $params);
         $product = $stripeProduct::create($params, $this->stripeConnectParam());
 
         m::close();
@@ -25,7 +27,7 @@ trait ProductMock
         $product = m::mock('alias:StripeProduct');
 
         switch ($slug) {
-            case 'create-product':
+            case 'create':
                 $product
                     ->shouldReceive('create')
                     ->with([
@@ -44,9 +46,9 @@ trait ProductMock
 
     protected function getStripeProduct($params = [])
     {
-        $product = new StripeProduct(['id' => 1]);
+        $product = new StripeProduct(['id' => 'prod_' . Str::random(12)]);
 
-        $product->name = count($params) ? $params['name'] : $this->faker->word;
+        $product->name = Arr::get($params, 'name', $this->faker->word);
         $product->description = $this->faker->paragraph;
         $product->created = time();
 

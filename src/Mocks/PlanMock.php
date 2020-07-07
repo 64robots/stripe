@@ -3,6 +3,8 @@
 namespace R64\Stripe\Mocks;
 
 use Mockery as m;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use R64\Stripe\Adapters\Plan;
 use Stripe\Plan as StripePlan;
 
@@ -10,7 +12,7 @@ trait PlanMock
 {
     public function createPlan(array $params)
     {
-        $stripePlan = $this->getMockStripePlan('create-plan', $params);
+        $stripePlan = $this->getMockStripePlan('create', $params);
         $plan = $stripePlan::create($params, $this->stripeConnectParam());
 
         m::close();
@@ -25,16 +27,14 @@ trait PlanMock
         $plan = m::mock('alias:StripePlan');
 
         switch ($slug) {
-            case 'create-plan':
+            case 'create':
                 $plan
                     ->shouldReceive('create')
                     ->with([
-                        'product' => $params['product'],
-                        'nickname' => $params['nickname'],
-                        'interval' => $params['interval'],
-                        'billing_scheme' => $params['billing_scheme'],
                         'amount' => $params['amount'],
                         'currency' => $params['currency'],
+                        'interval' => $params['interval'],
+                        'product' => $params['product'],
                     ], $this->stripeConnectParam())
                     ->andReturn($this->getStripePlan($params));
 
@@ -48,16 +48,16 @@ trait PlanMock
 
     protected function getStripePlan($params = [])
     {
-        $plan = new StripePlan(['id' => 1]);
+        $plan = new StripePlan(['id' => 'price_' . Str::random(12)]);
 
-        $plan->product = count($params) ? $params['product'] : 1;
-        $plan->nickname = count($params) ? $params['nickname'] : $this->faker->word;
-        $plan->amount = count($params) ? $params['amount'] : $this->faker->numberBetween(1000, 5000);
-        $plan->interval = count($params) ? $params['interval'] : 'month';
+        $plan->product = Arr::get($params, 'product', 'prod_' . Str::random(12));
+        $plan->nickname = Arr::get($params, 'nickname', $this->faker->word);
+        $plan->amount = Arr::get($params, 'amount', $this->faker->numberBetween(1000, 5000));
+        $plan->interval = Arr::get($params, 'interval', 'month');
         $plan->interval_count = $this->faker->numberBetween(1, 6);
-        $plan->billing_scheme = count($params) ? $params['billing_scheme'] : 'per_unit';
+        $plan->billing_scheme = Arr::get($params, 'billing_scheme', 'per_unit');
         $plan->usage_type = $this->faker->word;
-        $plan->currency = count($params) ? $params['currency'] : 'usd';
+        $plan->currency = Arr::get($params, 'currency', 'usd');
         $plan->created = time();
 
         return $plan;
