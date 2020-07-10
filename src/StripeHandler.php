@@ -2,432 +2,121 @@
 
 namespace R64\Stripe;
 
-use R64\Stripe\Adapters\Card;
-use R64\Stripe\Adapters\Charge;
-use R64\Stripe\Adapters\Customer;
-use R64\Stripe\Adapters\Invoice;
-use R64\Stripe\Adapters\InvoiceItem;
-use R64\Stripe\Adapters\Plan;
-use R64\Stripe\Adapters\Product;
-use R64\Stripe\Adapters\Subscription;
-use R64\Stripe\Adapters\Token;
-use Exception;
 use Illuminate\Support\Arr;
-use Stripe\Charge as StripeCharge;
-use Stripe\Customer as StripeCustomer;
-use Stripe\Invoice as StripeInvoice;
-use Stripe\InvoiceItem as StripeInvoiceItem;
-use Stripe\Issuing\Card as StripeCard;
-use Stripe\Plan as StripePlan;
-use Stripe\Product as StripeProduct;
+use Illuminate\Support\Str;
 use Stripe\Stripe;
-use Stripe\Subscription as StripeSubscription;
-use Stripe\Token as StripeToken;
 
 class StripeHandler implements StripeInterface
 {
-    use ResponseStatusTrait;
-
     /**
-     * Organization stripe connect id.
+     * Stripe connect id.
      *
      * @var string
      */
     private $stripeConnectId;
 
+    /**
+     * Determines whether to use stripe connect.
+     *
+     * @var string
+     */
     private $skipConnect;
-
-    private $currency;
 
     public function __construct(array $options = [])
     {
-        $secret = Arr::has($options, 'secret_key') ? $options['secret_key'] : config('stripe.secret');
-        Stripe::setApiKey($secret);
+        $this->setApiKey($options);
 
         $this->stripeConnectId = Arr::get($options, 'stripe_connect_id');
         $this->skipConnect = Arr::get($options, 'skip_stripe_connect', true);
     }
 
-    /***************************************************************************************
-     ** CHARGES
-     ***************************************************************************************/
-
-    public function listCharges(array $params)
+    public function __call($method, $arguments)
     {
-        $result = $this->attemptRequest('list-charges', Arr::except($params, 'as_stripe_collection'));
-        if (Arr::get($params, 'as_stripe_collection')) {
-            return $result;
-        }
-        if ($result) {
-            return collect($result->data);
-        }
+        $match = $this->getMethodMatch($method);
 
-        return collect([]);
+        $methodName = preg_split("/{$match}/", $method, -1, PREG_SPLIT_NO_EMPTY)[0];
+
+        return $this->makeRequest($methodName, $match, $arguments);
     }
 
-    public function getCharge(string $id, bool $noWrapper = false)
+    protected function getMethodMatch(string $method)
     {
-        $charge = $this->attemptRequest('get-charge', $id);
-        if ($charge) {
-            return $noWrapper ? $charge : new Charge($charge);
+        $availableMethods = collect(['list', 'get', 'create', 'update', 'delete']);
+
+        $matches = $availableMethods->filter(function ($type) use ($method) {
+            return Str::contains($method, $type);
+        });
+
+        // No match found
+        if (! $matches->count()) {
+            // throw an exception;- Method not match
         }
+
+        return $matches->first();
     }
 
-    public function createCharge(array $params)
+    protected function listResource(string $method, array $arguments)
     {
-        $charge = $this->attemptRequest('create-charge', $params);
-        if ($charge) {
-            return new Charge($charge);
-        }
+        $stripeResource = "Stripe\\{$method}";
+
+        return $stripeResource::all($arguments[0], $this->stripeConnectParam());
     }
 
-    /***************************************************************************************
-     ** CUSTOMERS
-     ***************************************************************************************/
-
-    public function listCustomers(array $params, bool $asStripeCollection = false)
+    protected function getResource(string $method, array $arguments)
     {
-        $result = $this->attemptRequest('list-customers', Arr::except($params, 'as_stripe_collection'));
-        if (Arr::get($params, 'as_stripe_collection')) {
-            return $result;
-        }
-        if ($result) {
-            return collect($result->data);
-        }
+        $stripeResource = "Stripe\\{$method}";
 
-        return collect([]);
+        return $stripeResource::retrieve($arguments[0], $this->stripeConnectParam());
     }
 
-    public function getCustomer(string $id, bool $noWrapper = false)
+    protected function createResource(string $method, array $arguments)
     {
-        $customer = $this->attemptRequest('get-customer', $id);
-        if ($customer) {
-            return $noWrapper ? $customer : new Customer($customer);
-        }
+        $stripeResource = "Stripe\\{$method}";
+
+        return $stripeResource::create($arguments[0], $this->stripeConnectParam());
     }
 
-    public function createCustomer(array $params)
+    protected function updateResource(string $method, array $arguments)
     {
-        $customer = $this->attemptRequest('create-customer', $params);
-        if ($customer) {
-            return new Customer($customer);
-        }
+        $stripeResource = "Stripe\\{$method}";
+
+        return $stripeResource::update($arguments[0], $arguments[1], $this->stripeConnectParam());
     }
 
-    public function updateCustomer(array $params)
+    protected function deleteResource(string $method, array $arguments)
     {
-        $customers = $this->listCustomers(['email' => $params['email']]);
-        if (! $customers->count() == 1) {
-            throw new Exception('Cannot update customer: '.$customers->count(), 400);
-        }
-        $customer = $customers->first();
-        $updatedCustomer = $this->attemptRequest('update-customer', $customer->id, $params);
-        if ($updatedCustomer) {
-            return new Customer($updatedCustomer);
-        }
+        $stripeResource = "Stripe\\{$method}";
+
+        return $stripeResource::delete($arguments[0]);
     }
 
-    public function deleteCustomer(string $id)
+    protected function makeRequest(string $method, string $match, array $arguments)
     {
-        $customer = $this->getCustomer($id, true);
-        if ($customer) {
-            return $customer->delete();
+        switch ($match) {
+            case 'list':
+                return $this->listResource($method, $arguments);
+
+            case 'get':
+                return $this->getResource($method, $arguments);
+
+            case 'create':
+                return $this->createResource($method, $arguments);
+
+            case 'update':
+                return $this->updateResource($method, $arguments);
+
+            case 'delete':
+                return $this->deleteResource($method, $arguments);
         }
     }
 
-    /***************************************************************************************
-     ** SUBSCRIPTIONS
-     ***************************************************************************************/
-
-    public function createProduct(array $params)
+    private function setApiKey(array $options)
     {
-        $product = $this->attemptRequest('create-product', $params);
-        if ($product) {
-            return new Product($product);
-        }
+        $secret = Arr::has($options, 'secret_key') ? $options['secret_key'] : config('stripe.secret');
+        Stripe::setApiKey($secret);
     }
 
-    public function getProduct(string $id, bool $noWrapper = false)
-    {
-        $product = $this->attemptRequest('get-product', $id);
-        if ($product) {
-            return $noWrapper ? $product : new Product($product);
-        }
-    }
-
-    public function deleteProduct(string $id)
-    {
-        $product = $this->getProduct($id, true);
-        if (! $product) {
-            throw new Exception('Product Not Found');
-        }
-        $product->delete();
-    }
-
-    public function createPlan(array $params)
-    {
-        $plan = $this->attemptRequest('create-plan', $params);
-        if ($plan) {
-            return new Plan($plan);
-        }
-    }
-
-    public function getPlan(string $id, bool $noWrapper = false)
-    {
-        $plan = $this->attemptRequest('get-plan', $id);
-        if ($plan) {
-            return $noWrapper ? $plan : new Plan($plan);
-        }
-    }
-
-    public function deletePlan(string $id)
-    {
-        $plan = $this->getPlan($id, true);
-        if (! $plan) {
-            throw new Exception('Plan Not Found');
-        }
-        $plan->delete();
-    }
-
-    public function createSubscription(array $params)
-    {
-        $subscription = $this->attemptRequest('create-subscription', $params);
-        if ($subscription) {
-            return new Subscription($subscription);
-        }
-    }
-
-    public function createInvoice(array $params)
-    {
-        $invoice = $this->attemptRequest('create-invoice', $params);
-        if ($invoice) {
-            return new Invoice($invoice);
-        }
-    }
-
-    public function createInvoiceItem(array $params)
-    {
-        $invoiceItem = $this->attemptRequest('create-invoice-item', $params);
-        if ($invoiceItem) {
-            return new InvoiceItem($invoiceItem);
-        }
-    }
-
-    public function getInvoice(string $id, bool $noWrapper = false)
-    {
-        $invoice = $this->attemptRequest('get-invoice', $id);
-        if ($invoice) {
-            return $noWrapper ? $invoice : new Invoice($invoice);
-        }
-    }
-
-    public function listSubscriptions(array $params, bool $noWrapper = false)
-    {
-        $result = $this->attemptRequest('list-subscriptions', Arr::except($params, 'as_stripe_collection'));
-        if (Arr::get($params, 'as_stripe_collection')) {
-            return $result;
-        }
-        if ($result) {
-            return collect($result->data);
-        }
-
-        return collect([]);
-    }
-
-    public function getSubscription(string $id, bool $noWrapper = false)
-    {
-        $subscription = $this->attemptRequest('get-subscription', $id);
-        if ($subscription) {
-            return $noWrapper ? $subscription : new Subscription($subscription);
-        }
-    }
-
-    /***************************************************************************************
-     ** CARDS
-     ***************************************************************************************/
-
-    public function getCard(string $customerId, string $cardId, bool $noWrapper = false)
-    {
-        $customer = $this->getCustomer($customerId, true);
-        $card = $customer->sources->retrieve($cardId);
-        if ($card) {
-            return $noWrapper ? $card : new Card($card);
-        }
-    }
-
-    public function createCard(array $params, bool $noWrapper = false)
-    {
-        $card = $this->attemptRequest('create-card', $params);
-        if ($card) {
-            return $noWrapper ? $card : new Card($card);
-        }
-    }
-
-    public function updateCard(string $customerId, string $cardId, array $params, bool $noWrapper = false)
-    {
-        $customer = $this->getCustomer($customerId, true);
-        $card = $customer->sources->retrieve($cardId);
-        foreach ($params as $property => $value) {
-            $card->{$property} = $value;
-        }
-        $card->save();
-        if ($card) {
-            return $noWrapper ? $card : new Card($card);
-        }
-    }
-
-    /*****************************************************************************************
-     ** TOKEN
-     *****************************************************************************************/
-
-    public function getToken(string $id, bool $noWrapper = false)
-    {
-        $token = $this->attemptRequest('get-token', $id);
-        if ($token) {
-            return $noWrapper ? $token : new Token($token);
-        }
-    }
-
-    /***************************************************************************************
-     ** HELPERS
-     ***************************************************************************************/
-
-    public function call(string $slug, ...$params)
-    {
-        switch ($slug) {
-            case 'list-charges':
-                return StripeCharge::all($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'create-charge':
-                return StripeCharge::create($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'list-customers':
-                return StripeCustomer::all($params[0], $this->stripeConnectParam());
-            case 'get-customer':
-                return StripeCustomer::retrieve($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'create-customer':
-                return StripeCustomer::create($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'update-customer':
-                return StripeCustomer::update($params[0], $params[1], $this->stripeConnectParam());
-
-                break;
-            case 'create-product':
-                return StripeProduct::create($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'get-product':
-                return StripeProduct::retrieve($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'create-plan':
-                return StripePlan::create($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'get-plan':
-                return StripePlan::retrieve($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'list-subscriptions':
-                return StripeSubscription::all($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'create-subscription':
-                return StripeSubscription::create($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'create-invoice':
-                return StripeInvoice::create($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'create-invoice-item':
-                return StripeInvoiceItem::create($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'get-charge':
-                return StripeCharge::retrieve($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'get-invoice':
-                return StripeInvoice::retrieve($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'get-subscription':
-                return StripeSubscription::retrieve($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'get-token':
-                return StripeToken::retrieve($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'get-card':
-                return StripeCard::retrieve($params[0], $this->stripeConnectParam());
-
-                break;
-            case 'create-card':
-                return $this->saveCard($params[0]['customer'], $params[0]['token']);
-
-                break;
-            case 'update-card':
-                return StripeCard::update($params[0], $params[1], $this->stripeConnectParam());
-
-                break;
-        }
-    }
-
-    public function saveCard($customerId, $token)
-    {
-        $customer = StripeCustomer::retrieve($customerId, $this->stripeConnectParam());
-
-        return $customer->sources->create(['source' => $token]);
-    }
-
-    public function attemptRequest(string $slug, ...$params)
-    {
-        try {
-            $data = $this->call($slug, ...$params);
-            $this->successful = true;
-
-            return $data;
-        } catch (\Stripe\Exception\CardException $e) {
-            $this->recordError($e, 'Card Error', 'card_error');
-        } catch (\Stripe\Exception\RateLimitException $e) {
-            $this->recordError($e, 'Rate limit exceeded', 'rate_limit_error');
-        } catch (\Stripe\Exception\InvalidRequestException $e) {
-            $this->recordError($e, 'Invalid request data', 'invalid_request_error');
-        } catch (\Stripe\Exception\AuthenticationException $e) {
-            $this->recordError($e, 'Authentication error', 'authentication_error');
-        } catch (\Stripe\Exception\ApiConnectionException $e) {
-            $this->recordError($e, 'API connection error', 'api_connection_error');
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            $this->recordError($e, 'General Stripe error', 'general_stripe_error');
-        } catch (Exception $e) {
-            $this->successful = false;
-            $this->message = $e->getMessage();
-            $this->errorType = 'unkown_exception';
-            $this->statusCode = $e->getCode();
-            $this->exception = $e;
-        }
-    }
-
-    public function recordError(Exception $e, string $altMessage = null, string $altType = null)
-    {
-        $body = $e->getJsonBody();
-        $err = $body['error'];
-
-        $this->successful = false;
-        $this->message = Arr::get($err, 'message', $altMessage);
-        $this->errorType = Arr::get($err, 'type', $altType);
-        $this->statusCode = $e->getHttpStatus();
-        $this->exception = $e;
-    }
-
-    public function stripeConnectParam()
+    private function stripeConnectParam()
     {
         if ($this->skipConnect) {
             return;
