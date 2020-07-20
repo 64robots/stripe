@@ -37,6 +37,8 @@ class Subscription
 
     public $created;
 
+    public $latest_invoice_id;
+
     public function __construct($subscription = null)
     {
         if ($subscription && get_class($subscription) === 'Stripe\Subscription') {
@@ -49,6 +51,7 @@ class Subscription
         $this->id = $subscription->id;
         $this->plan_id = $subscription->plan ? $subscription->plan->id : null;
         $this->customer_id = $subscription->customer;
+        $this->latest_invoice_id = $subscription->latest_invoice;
         $this->amount = $subscription->plan ? $subscription->plan->amount * $subscription->quantity : null;
 
         $this->billing = $subscription->billing; // `charge_automatically`
