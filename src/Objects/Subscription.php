@@ -54,7 +54,7 @@ class Subscription
         $this->latest_invoice_id = $subscription->latest_invoice;
         $this->amount = $subscription->plan ? $subscription->plan->amount * $subscription->quantity : null;
 
-        $this->billing = $subscription->billing; // `charge_automatically`
+        $this->billing = $subscription->collection_method; // `charge_automatically`
         $this->days_until_due = $subscription->days_until_due;
         $this->discount = $subscription->discount;
 
