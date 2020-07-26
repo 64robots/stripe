@@ -53,9 +53,8 @@ class MockHandler implements StripeInterface
         $this->skipConnect = Arr::get($options, 'skip_stripe_connect', true);
     }
 
-    /*********************************************************************************/
-
-    /** CHARGE
+    /*********************************************************************************
+     ** CHARGE
      **********************************************************************************/
     public function createCharge(array $params)
     {
@@ -89,10 +88,10 @@ class MockHandler implements StripeInterface
         return $handler;
     }
 
-    /*********************************************************************************/
+    /*********************************************************************************
+     ** CUSTOMER
+     *********************************************************************************/
 
-    /** CUSTOMER
-     **********************************************************************************/
     public function createCustomer(array $params)
     {
         $stripeCustomer = $this->getMockStripeCustomer($params);
@@ -154,10 +153,9 @@ class MockHandler implements StripeInterface
         }
     }
 
-    /*********************************************************************************/
-
-    /** INVOICE
-     **********************************************************************************/
+    /*********************************************************************************
+     ** INVOICE
+     *********************************************************************************/
     public function createInvoiceItem(array $params)
     {
         $stripeInvoiceItem = $this->getMockStripeInvoiceItem($params);
@@ -195,7 +193,6 @@ class MockHandler implements StripeInterface
     }
 
     /*********************************************************************************/
-
     /** SUBSCRIPTIONS
      **********************************************************************************/
     public function createSubscription(array $params)
@@ -514,8 +511,9 @@ class MockHandler implements StripeInterface
             'amount' => 2500,
         ];
         $subscription->customer = count($params) ? $params['customer'] : 'cus_'.Str::random(10);
+        $subscription->latest_invoice = 'in_1FfVwCDqGIY1iWywaqQxnaGp';
         $subscription->quantity = 1;
-        $subscription->billing = $faker->numberBetween(10, 100);
+        $subscription->collection_method = 'charge_automatically';
         $subscription->discount = $faker->numberBetween(10, 100);
         $subscription->cancel_at_period_end = false;
         $subscription->billing_cycle_anchor = now()->addDays(10)->timestamp;
