@@ -69,6 +69,18 @@ class MockHandler implements StripeInterface
         }
     }
 
+    public function createConnectCharge(array $params)
+    {
+        $stripeCharge = $this->getMockStripeConnectCharge($params);
+        $charge = $stripeCharge::create($params, $this->stripeConnectParam());
+
+        m::close();
+
+        if ($charge) {
+            return new Charge($charge);
+        }
+    }
+
     public function listCharges(array $params)
     {
         $handler = m::mock(self::class);
@@ -368,6 +380,30 @@ class MockHandler implements StripeInterface
                 'amount' => $params['amount'],
                 'currency' => $params['currency'],
                 'source' => $params['source'],
+            ], $this->stripeConnectParam())
+            ->andReturn($this->getStripeCharge($params));
+
+        $this->successful = true;
+
+        return $charge;
+    }
+
+    private function getMockStripeConnectCharge($params)
+    {
+        $charge = m::mock('alias:StripeCharge');
+
+        $charge
+            ->shouldReceive('create')
+            ->with([
+                'customer' => $params['customer'],
+                'amount' => $params['amount'],
+                'currency' => $params['currency'],
+                'source' => $params['source'],
+                'description' => $params['description'],
+                'transfer_data' => [
+                    'amount' => $params['transfer_data']['amount'],
+                    'destination' => $params['transfer_data']['destination'],
+                ],
             ], $this->stripeConnectParam())
             ->andReturn($this->getStripeCharge($params));
 
