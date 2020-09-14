@@ -81,6 +81,14 @@ class StripeHandler implements StripeInterface
         }
     }
 
+    public function createConnectCharge(array $params)
+    {
+        $charge = $this->attemptRequest('create-charge', $params);
+        if ($charge) {
+            return new Charge($charge);
+        }
+    }
+
     /***************************************************************************************
      ** CUSTOMERS
      ***************************************************************************************/
