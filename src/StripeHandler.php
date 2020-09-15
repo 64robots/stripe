@@ -8,6 +8,7 @@ use R64\Stripe\Objects\Charge;
 use R64\Stripe\Objects\Customer;
 use R64\Stripe\Objects\Invoice;
 use R64\Stripe\Objects\InvoiceItem;
+use R64\Stripe\Objects\Payout;
 use R64\Stripe\Objects\Plan;
 use R64\Stripe\Objects\Product;
 use R64\Stripe\Objects\Subscription;
@@ -22,6 +23,7 @@ use Stripe\Issuing\Card as StripeCard;
 use Stripe\Plan as StripePlan;
 use Stripe\Product as StripeProduct;
 use Stripe\Balance as StripeBalance;
+use Stripe\Payout as StripePayout;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\Token as StripeToken;
@@ -307,6 +309,18 @@ class StripeHandler implements StripeInterface
         }
     }
 
+    /***************************************************************************************
+     ** PAYOUT
+     ***************************************************************************************/
+
+    public function createPayout(array $params, bool $noWrapper = false)
+    {
+        $payout = $this->attemptRequest('create-payout', $params);
+        if ($payout) {
+            return $noWrapper ? $payout : new Payout($payout);
+        }
+    }
+
     /*****************************************************************************************
      ** TOKEN
      *****************************************************************************************/
@@ -410,6 +424,11 @@ class StripeHandler implements StripeInterface
                 break;
             case 'get-balance':
                 return StripeBalance::retrieve($params[0]);
+
+                break;
+
+            case 'create-payout':
+                return StripePayout::create($params[0], $params[1]);
 
                 break;
         }

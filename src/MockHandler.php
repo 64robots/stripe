@@ -2,6 +2,7 @@
 
 namespace R64\Stripe;
 
+use Carbon\Carbon;
 use R64\Stripe\Objects\Balance;
 use R64\Stripe\Objects\Card;
 use R64\Stripe\Objects\CardHolder;
@@ -9,6 +10,7 @@ use R64\Stripe\Objects\Charge;
 use R64\Stripe\Objects\Customer;
 use R64\Stripe\Objects\Invoice;
 use R64\Stripe\Objects\InvoiceItem;
+use R64\Stripe\Objects\Payout;
 use R64\Stripe\Objects\Plan;
 use R64\Stripe\Objects\Product;
 use R64\Stripe\Objects\Subscription;
@@ -27,6 +29,7 @@ use Stripe\Issuing\Cardholder as StripeCardHolder;
 use Stripe\Plan as StripePlan;
 use Stripe\Product as StripeProduct;
 use Stripe\Balance as StripeBalance;
+use Stripe\Payout as StripePayout;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\Token as StripeToken;
@@ -366,6 +369,22 @@ class MockHandler implements StripeInterface
 
         if ($balance) {
             return new Balance($balance);
+        }
+    }
+
+    /***************************************************************************************
+     ** PAYOUT
+     ***************************************************************************************/
+
+    public function createPayout(array $params)
+    {
+        $payoutClass = $this->getMockStripePayout('create', $params);
+        $payout = $payoutClass::create($params);
+
+        m::close();
+
+        if ($payout) {
+            return new Payout($payout);
         }
     }
 
@@ -993,8 +1012,61 @@ class MockHandler implements StripeInterface
                     "card" => 0,
                 ],
             ],
-        ];;
+        ];
 
         return $balance;
+    }
+
+    /***************************************************************************************
+     ** PAYOUT
+     ***************************************************************************************/
+
+    private function getMockStripePayout(string $slug, $params = [])
+    {
+        $payout = m::mock('alias:StripePayout');
+
+        switch ($slug) {
+            case 'create':
+                $payout
+                    ->shouldReceive('create')
+                    ->with([
+                        'amount' => $params['amount'],
+                        'currency' => $params['currency'],
+                    ])
+                    ->andReturn($this->getStripePayout($params));
+
+                break;
+        }
+
+        $this->successful = true;
+
+        return $payout;
+    }
+
+    private function getStripePayout(array $params)
+    {
+        $payout = new StripePayout(['id' => 'po_1234']);
+
+        $payout->object = 'payout';
+        $payout->amount = $params['amount'] ?? null;
+        $payout->currency = $params['currency'] ?? null;
+        $payout->arrival_date = Carbon::now()->timestamp;
+        $payout->automatic = true;
+        $payout->balance_transaction = 'txn_1HRbbY2tXu0CfXKw0glH0ieS';
+        $payout->created = Carbon::now()->timestamp;
+        $payout->description = null;
+        $payout->destination = 'ba_1HRbbaCPpDa9U5gSci2TmFbi';
+        $payout->failure_balance_transaction = null;
+        $payout->failure_code = null;
+        $payout->failure_message = null;
+        $payout->livemode = false;
+        $payout->metadata = (object) [];
+        $payout->method = 'standard';
+        $payout->source_type = 'card';
+        $payout->statement_descriptor = null;
+        $payout->status = 'in_transit';
+        $payout->type = 'bank_account';
+
+        return $payout;
     }
 }
