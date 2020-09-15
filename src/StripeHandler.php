@@ -2,6 +2,7 @@
 
 namespace R64\Stripe;
 
+use R64\Stripe\Objects\Balance;
 use R64\Stripe\Objects\Card;
 use R64\Stripe\Objects\Charge;
 use R64\Stripe\Objects\Customer;
@@ -20,6 +21,7 @@ use Stripe\InvoiceItem as StripeInvoiceItem;
 use Stripe\Issuing\Card as StripeCard;
 use Stripe\Plan as StripePlan;
 use Stripe\Product as StripeProduct;
+use Stripe\Balance as StripeBalance;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\Token as StripeToken;
@@ -284,6 +286,18 @@ class StripeHandler implements StripeInterface
         }
     }
 
+    /***************************************************************************************
+     ** BALANCE
+     ***************************************************************************************/
+
+    public function getBalance(bool $noWrapper = false)
+    {
+        $balance = $this->attemptRequest('get-balance');
+        if ($balance) {
+            return $noWrapper ? $balance : new Balance($balance);
+        }
+    }
+
     /*****************************************************************************************
      ** TOKEN
      *****************************************************************************************/
@@ -383,6 +397,10 @@ class StripeHandler implements StripeInterface
                 break;
             case 'update-card':
                 return StripeCard::update($params[0], $params[1], $this->stripeConnectParam());
+
+                break;
+            case 'get-balance':
+                return StripeBalance::retrieve();
 
                 break;
         }

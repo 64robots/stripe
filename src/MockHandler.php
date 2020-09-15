@@ -2,6 +2,7 @@
 
 namespace R64\Stripe;
 
+use R64\Stripe\Objects\Balance;
 use R64\Stripe\Objects\Card;
 use R64\Stripe\Objects\CardHolder;
 use R64\Stripe\Objects\Charge;
@@ -25,6 +26,7 @@ use Stripe\InvoiceItem as StripeInvoiceItem;
 use Stripe\Issuing\Cardholder as StripeCardHolder;
 use Stripe\Plan as StripePlan;
 use Stripe\Product as StripeProduct;
+use Stripe\Balance as StripeBalance;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\Token as StripeToken;
@@ -333,6 +335,22 @@ class MockHandler implements StripeInterface
 
         if ($cardHolder) {
             return new CardHolder($cardHolder);
+        }
+    }
+
+    /***************************************************************************************
+     ** BALANCE
+     ***************************************************************************************/
+
+    public function getBalance()
+    {
+        $balanceClass = $this->getMockStripeBalance('retrieve');
+        $balance = $balanceClass::retrieve($this->stripeConnectParam());
+
+        m::close();
+
+        if ($balance) {
+            return new Balance($balance);
         }
     }
 
@@ -899,5 +917,61 @@ class MockHandler implements StripeInterface
         $card->address_zip_check = Arr::get($params, 'address_zip_check');
 
         return $card;
+    }
+
+    /***************************************************************************************
+     ** BALANCE
+     ***************************************************************************************/
+
+    private function getMockStripeBalance(string $slug)
+    {
+        $balance = m::mock('alias:StripeBalance');
+
+        switch ($slug) {
+            case 'retrieve':
+                $balance
+                    ->shouldReceive('retrieve')
+                    ->andReturn($this->getStripeBalance());
+
+                break;
+        }
+
+        $this->successful = true;
+
+        return $balance;
+    }
+
+    private function getStripeBalance()
+    {
+        $balance = new StripeBalance();
+
+        $balance->object = 'balance';
+        $balance->available = [
+            (object) [
+                "amount" => 1500,
+                "currency" => "usd",
+                "source_types" => (object) [
+                    "card" => 0,
+                ],
+            ],
+        ];
+        $balance->connect_reserved = [
+            [
+                "amount" => 0,
+                "currency" => "usd",
+            ],
+        ];
+        $balance->livemode = false;
+        $balance->pending = [
+            (object) [
+                "amount" => 1000,
+                "currency" => "usd",
+                "source_types" => (object) [
+                    "card" => 0,
+                ],
+            ],
+        ];;
+
+        return $balance;
     }
 }
