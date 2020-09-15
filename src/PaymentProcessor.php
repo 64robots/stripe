@@ -209,6 +209,14 @@ class PaymentProcessor
         return $balance;
     }
 
+    public function getConnectBalance($stripeAccountId)
+    {
+        $balance = $this->handler->getConnectBalance($stripeAccountId);
+        $this->recordAttempt();
+
+        return $balance;
+    }
+
     /***************************************************************************************
      ** HELPERS
      ***************************************************************************************/

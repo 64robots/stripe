@@ -345,7 +345,22 @@ class MockHandler implements StripeInterface
     public function getBalance()
     {
         $balanceClass = $this->getMockStripeBalance('retrieve');
-        $balance = $balanceClass::retrieve($this->stripeConnectParam());
+        $balance = $balanceClass::retrieve();
+
+        m::close();
+
+        if ($balance) {
+            return new Balance($balance);
+        }
+    }
+
+    public function getConnectBalance($stripeAccountId)
+    {
+        $stripeConnect = [
+            'stripe_account' => $stripeAccountId,
+        ];
+        $balanceClass = $this->getMockStripeBalance('retrieve-connect', $stripeConnect);
+        $balance = $balanceClass::retrieve($stripeConnect);
 
         m::close();
 
@@ -923,7 +938,7 @@ class MockHandler implements StripeInterface
      ** BALANCE
      ***************************************************************************************/
 
-    private function getMockStripeBalance(string $slug)
+    private function getMockStripeBalance(string $slug, $params = [])
     {
         $balance = m::mock('alias:StripeBalance');
 
@@ -931,6 +946,14 @@ class MockHandler implements StripeInterface
             case 'retrieve':
                 $balance
                     ->shouldReceive('retrieve')
+                    ->andReturn($this->getStripeBalance());
+
+                break;
+
+            case 'retrieve-connect':
+                $balance
+                    ->shouldReceive('retrieve')
+                    ->with($params)
                     ->andReturn($this->getStripeBalance());
 
                 break;

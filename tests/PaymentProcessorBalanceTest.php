@@ -16,4 +16,18 @@ class PaymentProcessorBalanceTest extends TestCase
         $this->assertEquals('', $this->processor->getErrorType());
         $this->assertEquals('R64\Stripe\Objects\Balance', get_class($balance));
     }
+
+    /**
+     * @test
+     */
+    public function can_get_connect_balance_details()
+    {
+        $stripeConnectId = 'acct_1';
+        $balance = $this->processor->getConnectBalance($stripeConnectId);
+
+        $this->assertTrue($this->processor->attemptSuccessful());
+        $this->assertEquals('', $this->processor->getErrorMessage());
+        $this->assertEquals('', $this->processor->getErrorType());
+        $this->assertEquals('R64\Stripe\Objects\Balance', get_class($balance));
+    }
 }

@@ -298,6 +298,15 @@ class StripeHandler implements StripeInterface
         }
     }
 
+    public function getConnectBalance(string $stripeConnectId, bool $noWrapper = false)
+    {
+        $balance = $this->attemptRequest('get-balance', ['stripe_account' => $stripeConnectId]);
+
+        if ($balance) {
+            return $noWrapper ? $balance : new Balance($balance);
+        }
+    }
+
     /*****************************************************************************************
      ** TOKEN
      *****************************************************************************************/
@@ -400,7 +409,7 @@ class StripeHandler implements StripeInterface
 
                 break;
             case 'get-balance':
-                return StripeBalance::retrieve();
+                return StripeBalance::retrieve($params[0]);
 
                 break;
         }
