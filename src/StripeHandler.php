@@ -300,9 +300,9 @@ class StripeHandler implements StripeInterface
         }
     }
 
-    public function getConnectBalance(string $stripeConnectId, bool $noWrapper = false)
+    public function getConnectBalance(string $stripeAccountId, bool $noWrapper = false)
     {
-        $balance = $this->attemptRequest('get-balance', ['stripe_account' => $stripeConnectId]);
+        $balance = $this->attemptRequest('get-balance', ['stripe_account' => $stripeAccountId]);
 
         if ($balance) {
             return $noWrapper ? $balance : new Balance($balance);
@@ -320,6 +320,15 @@ class StripeHandler implements StripeInterface
             return $noWrapper ? $payout : new Payout($payout);
         }
     }
+
+    public function createConnectPayout(array $params, string $stripeAccountId, bool $noWrapper = false)
+    {
+        $payout = $this->attemptRequest('create-payout', $params, ['stripe_account' => $stripeAccountId]);
+        if ($payout) {
+            return $noWrapper ? $payout : new Payout($payout);
+        }
+    }
+
 
     /*****************************************************************************************
      ** TOKEN

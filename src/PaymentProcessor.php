@@ -229,6 +229,14 @@ class PaymentProcessor
         return $payout;
     }
 
+    public function createConnectPayout(array $data, string $stripeAccountId)
+    {
+        $payout = $this->handler->createConnectPayout($data, $stripeAccountId);
+        $this->recordAttempt();
+
+        return $payout;
+    }
+
     /***************************************************************************************
      ** HELPERS
      ***************************************************************************************/

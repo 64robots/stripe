@@ -359,11 +359,11 @@ class MockHandler implements StripeInterface
 
     public function getConnectBalance($stripeAccountId)
     {
-        $stripeConnect = [
+        $stripeAccount = [
             'stripe_account' => $stripeAccountId,
         ];
-        $balanceClass = $this->getMockStripeBalance('retrieve-connect', $stripeConnect);
-        $balance = $balanceClass::retrieve($stripeConnect);
+        $balanceClass = $this->getMockStripeBalance('retrieve-connect', $stripeAccount);
+        $balance = $balanceClass::retrieve($stripeAccount);
 
         m::close();
 
@@ -380,6 +380,21 @@ class MockHandler implements StripeInterface
     {
         $payoutClass = $this->getMockStripePayout('create', $params);
         $payout = $payoutClass::create($params);
+
+        m::close();
+
+        if ($payout) {
+            return new Payout($payout);
+        }
+    }
+
+    public function createConnectPayout(array $params, string $stripeAccountId)
+    {
+        $stripeAccount = [
+            'stripe_account' => $stripeAccountId,
+        ];
+        $payoutClass = $this->getMockStripePayout('create-connect', $params, $stripeAccount);
+        $payout = $payoutClass::create($params, $stripeAccount);
 
         m::close();
 
@@ -1021,7 +1036,7 @@ class MockHandler implements StripeInterface
      ** PAYOUT
      ***************************************************************************************/
 
-    private function getMockStripePayout(string $slug, $params = [])
+    private function getMockStripePayout(string $slug, $params = [], $stripeConnectParams = [])
     {
         $payout = m::mock('alias:StripePayout');
 
@@ -1033,6 +1048,17 @@ class MockHandler implements StripeInterface
                         'amount' => $params['amount'],
                         'currency' => $params['currency'],
                     ])
+                    ->andReturn($this->getStripePayout($params));
+
+                break;
+
+            case 'create-connect':
+                $payout
+                    ->shouldReceive('create')
+                    ->with([
+                        'amount' => $params['amount'],
+                        'currency' => $params['currency'],
+                    ], $stripeConnectParams)
                     ->andReturn($this->getStripePayout($params));
 
                 break;
