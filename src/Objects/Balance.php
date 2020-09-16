@@ -29,4 +29,26 @@ class Balance
         $this->livemode = $balance->livemode;
         $this->pending = $balance->pending;
    }
+
+   public function getAvailable($currency)
+   {
+       $currency = strtolower($currency);
+
+       $availableBalance = collect($this->available)
+           ->whereIn('currency', [$currency, strtoupper($currency)])
+           ->first();
+
+       return $availableBalance->amount ?? null;
+   }
+
+   public function getPending($currency)
+   {
+       $currency = strtolower($currency);
+
+       $pendingBalance = collect($this->pending)
+           ->whereIn('currency', [$currency, strtoupper($currency)])
+           ->first();
+
+       return $pendingBalance->amount ?? null;
+   }
 }
