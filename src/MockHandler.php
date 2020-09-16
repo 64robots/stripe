@@ -628,6 +628,8 @@ class MockHandler implements StripeInterface
         $subscription->current_period_start = time();
         $subscription->days_until_due = $faker->numberBetween(1, 30);
         $subscription->created = time();
+        $subscription->latest_invoice = null;
+        $subscription->collection_method = 'charge_automatically';
 
         return $subscription;
     }
@@ -1011,6 +1013,13 @@ class MockHandler implements StripeInterface
                     "card" => 0,
                 ],
             ],
+            (object) [
+                "amount" => 2000,
+                "currency" => "eur",
+                "source_types" => (object) [
+                    "card" => 0,
+                ],
+            ],
         ];
         $balance->connect_reserved = [
             [
@@ -1023,6 +1032,13 @@ class MockHandler implements StripeInterface
             (object) [
                 "amount" => 1000,
                 "currency" => "usd",
+                "source_types" => (object) [
+                    "card" => 0,
+                ],
+            ],
+            (object) [
+                "amount" => 500,
+                "currency" => "eur",
                 "source_types" => (object) [
                     "card" => 0,
                 ],
