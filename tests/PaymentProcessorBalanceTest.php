@@ -17,6 +17,7 @@ class PaymentProcessorBalanceTest extends TestCase
         $this->assertEquals('R64\Stripe\Objects\Balance', get_class($balance));
         $this->assertEquals(1500, $balance->getAvailable('USD'));
         $this->assertEquals(1000, $balance->getPending('USD'));
+        $this->assertEquals(collect(['eur', 'usd']), $balance->getCurrencies());
     }
 
     /**
