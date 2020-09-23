@@ -31,6 +31,14 @@ class PaymentProcessor
         return $charge;
     }
 
+    public function createConnectCharge(array $data)
+    {
+        $charge = $this->handler->createConnectCharge($data);
+        $this->recordAttempt();
+
+        return $charge;
+    }
+
     /***************************************************************************************
      ** CUSTOMERS
      ***************************************************************************************/
