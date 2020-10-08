@@ -3,6 +3,7 @@
 namespace R64\Stripe;
 
 use Carbon\Carbon;
+use R64\Stripe\Objects\Account;
 use R64\Stripe\Objects\Balance;
 use R64\Stripe\Objects\Card;
 use R64\Stripe\Objects\CardHolder;
@@ -20,6 +21,7 @@ use Faker\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Mockery as m;
+use Stripe\Account as StripeAccount;
 use Stripe\Balance as StripeBalance;
 use Stripe\Card as StripeCard;
 use Stripe\Charge as StripeCharge;
@@ -338,6 +340,22 @@ class MockHandler implements StripeInterface
 
         if ($cardHolder) {
             return new CardHolder($cardHolder);
+        }
+    }
+
+    /***************************************************************************************
+     ** CONNECT
+     ***************************************************************************************/
+
+    public function getConnectAccount(string $stripeAccountId = null)
+    {
+        $accountClass = $this->getMockStripeAccount('retrieve-account', $stripeAccountId);
+        $account = $accountClass::retrieve($stripeAccountId);
+
+        m::close();
+
+        if ($account) {
+            return new Account($account);
         }
     }
 
@@ -968,6 +986,47 @@ class MockHandler implements StripeInterface
         $card->address_zip_check = Arr::get($params, 'address_zip_check');
 
         return $card;
+    }
+
+    /***************************************************************************************
+     ** CONNECT
+     ***************************************************************************************/
+
+    private function getMockStripeAccount(string $slug, $stripeAccountId = null)
+    {
+        $account = m::mock('alias:StripeAccount');
+
+        switch ($slug) {
+            case 'retrieve-account':
+                $account
+                    ->shouldReceive('retrieve')
+                    ->with($stripeAccountId)
+                    ->andReturn($this->getStripeAccount($stripeAccountId));
+
+                break;
+        }
+
+        $this->successful = true;
+
+        return $account;
+    }
+
+    private function getStripeAccount($stripeAccountId = null)
+    {
+        $account = new StripeAccount($stripeAccountId);
+
+        $account->object = 'account';
+        $account->email = 'account@example.com';
+        $account->business_profile = (object) [
+            'name' => 'A business name',
+            'support_phone' => '+15555555555',
+            'support_url' => 'https://www.example.com/support',
+            'url' => 'https://www.example.com',
+        ];
+        $account->business_type = StripeAccount::BUSINESS_TYPE_COMPANY;
+        $account->created = Carbon::now()->timestamp;
+
+        return $account;
     }
 
     /***************************************************************************************

@@ -2,6 +2,7 @@
 
 namespace R64\Stripe;
 
+use R64\Stripe\Objects\Account;
 use R64\Stripe\Objects\Balance;
 use R64\Stripe\Objects\Card;
 use R64\Stripe\Objects\Charge;
@@ -15,6 +16,7 @@ use R64\Stripe\Objects\Subscription;
 use R64\Stripe\Objects\Token;
 use Exception;
 use Illuminate\Support\Arr;
+use Stripe\Account as StripeAccount;
 use Stripe\Balance as StripeBalance;
 use Stripe\Charge as StripeCharge;
 use Stripe\Customer as StripeCustomer;
@@ -289,6 +291,19 @@ class StripeHandler implements StripeInterface
     }
 
     /***************************************************************************************
+     ** CONNECT
+     ***************************************************************************************/
+
+    public function getConnectAccount(string $stripeAccountId, bool $noWrapper = false)
+    {
+        $account = $this->attemptRequest('get-account', $stripeAccountId);
+
+        if ($account) {
+            return $noWrapper ? $account : new Account($account);
+        }
+    }
+
+    /***************************************************************************************
      ** BALANCE
      ***************************************************************************************/
 
@@ -435,9 +450,12 @@ class StripeHandler implements StripeInterface
                 return StripeBalance::retrieve($params[0]);
 
                 break;
-
             case 'create-payout':
                 return StripePayout::create($params[0], $params[1]);
+
+                break;
+            case 'get-account':
+                return StripeAccount::retrieve($params[0]);
 
                 break;
         }
