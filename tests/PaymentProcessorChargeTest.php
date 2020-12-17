@@ -32,10 +32,6 @@ class PaymentProcessorChargeTest extends TestCase
             'currency' => 'usd',
             'source' => 'tok_visa',
             'description' => 'a description',
-            'transfer_data' => [
-                'amount' => 8,
-                'destination' => 2,
-            ]
         ]);
 
         $this->assertTrue($this->processor->attemptSuccessful());

@@ -503,10 +503,6 @@ class MockHandler implements StripeInterface
                 'currency' => $params['currency'],
                 'source' => $params['source'],
                 'description' => $params['description'],
-                'transfer_data' => [
-                    'amount' => $params['transfer_data']['amount'],
-                    'destination' => $params['transfer_data']['destination'],
-                ],
             ], $this->stripeConnectParam())
             ->andReturn($this->getStripeCharge($params));
 
