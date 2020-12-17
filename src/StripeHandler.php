@@ -14,6 +14,7 @@ use R64\Stripe\Objects\Plan;
 use R64\Stripe\Objects\Product;
 use R64\Stripe\Objects\Subscription;
 use R64\Stripe\Objects\Token;
+use R64\Stripe\Objects\Transfer;
 use Exception;
 use Illuminate\Support\Arr;
 use Stripe\Account as StripeAccount;
@@ -29,6 +30,7 @@ use Stripe\Product as StripeProduct;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\Token as StripeToken;
+use Stripe\Transfer as StripeTransfer;
 
 class StripeHandler implements StripeInterface
 {
@@ -92,6 +94,18 @@ class StripeHandler implements StripeInterface
         $charge = $this->attemptRequest('create-charge', $params);
         if ($charge) {
             return new Charge($charge);
+        }
+    }
+
+    /***************************************************************************************
+     ** TRANSFERS
+     ***************************************************************************************/
+
+    public function createConnectTransfer(array $params)
+    {
+        $transfer = $this->attemptRequest('create-transfer', $params);
+        if ($transfer) {
+            return new Transfer($transfer);
         }
     }
 
@@ -370,6 +384,10 @@ class StripeHandler implements StripeInterface
                 break;
             case 'create-charge':
                 return StripeCharge::create($params[0], $this->stripeConnectParam());
+
+                break;
+            case 'create-transfer':
+                return StripeTransfer::create($params[0], $this->stripeConnectParam());
 
                 break;
             case 'list-customers':

@@ -16,6 +16,7 @@ use R64\Stripe\Objects\Plan;
 use R64\Stripe\Objects\Product;
 use R64\Stripe\Objects\Subscription;
 use R64\Stripe\Objects\Token;
+use R64\Stripe\Objects\Transfer;
 use App\Models\Donation;
 use Faker\Factory;
 use Illuminate\Support\Arr;
@@ -35,6 +36,7 @@ use Stripe\Product as StripeProduct;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\Token as StripeToken;
+use Stripe\Transfer as StripeTransfer;
 
 class MockHandler implements StripeInterface
 {
@@ -106,6 +108,22 @@ class MockHandler implements StripeInterface
             ]);
 
         return $handler;
+    }
+
+    /*********************************************************************************/
+    /** TRANSFER
+     **********************************************************************************/
+
+    public function createConnectTransfer(array $params)
+    {
+        $stripeTransfer = $this->getMockStripeConnectTransfer($params);
+        $transfer = $stripeTransfer::create($params, $this->stripeConnectParam());
+
+        m::close();
+
+        if ($transfer) {
+            return new Transfer($transfer);
+        }
     }
 
     /*********************************************************************************/
@@ -517,6 +535,42 @@ class MockHandler implements StripeInterface
         ];
 
         return $charge;
+    }
+
+    /***************************************************************************************
+     ** STRIPE TRANSFER
+     ***************************************************************************************/
+
+    private function getMockStripeConnectTransfer($params)
+    {
+        $transfer = m::mock('alias:StripeTransfer');
+
+        $transfer
+            ->shouldReceive('create')
+            ->with([
+                'amount' => $params['amount'],
+                'currency' => $params['currency'],
+                'source_transaction' => $params['source_transaction'],
+                'destination' => $params['destination'],
+            ], $this->stripeConnectParam())
+            ->andReturn($this->getStripeTransfer($params));
+
+        $this->successful = true;
+
+        return $transfer;
+    }
+
+    private function getStripeTransfer($params)
+    {
+        $transfer = new StripeTransfer(['id' => $params['id'] ?? 'tr_1']);
+
+        $transfer->amount = $params['amount'];
+        $transfer->currency = $params['currency'];
+        $transfer->destination = $params['destination'];
+        $transfer->source_transaction = $params['source_transaction'];
+        $transfer->created = time();
+
+        return $transfer;
     }
 
     /***************************************************************************************
