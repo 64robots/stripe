@@ -543,7 +543,7 @@ class MockHandler implements StripeInterface
 
         $faker = Factory::create();
         $subscription->plan = (object) [
-            'id' => count($params) ? $params['items']['0']['plan'] : 'plan_'.Str::random(10),
+            'id' => $params['items']['0']['plan'] ?? 'plan_'.Str::random(10),
             'amount' => 2500,
         ];
         $subscription->customer = count($params) ? $params['customer'] : 'cus_'.Str::random(10);
