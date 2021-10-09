@@ -40,6 +40,18 @@ class PaymentProcessor
     }
 
     /***************************************************************************************
+     ** TRANSFERS
+     ***************************************************************************************/
+
+    public function createConnectTransfer(array $data)
+    {
+        $transfer = $this->handler->createConnectTransfer($data);
+        $this->recordAttempt();
+
+        return $transfer;
+    }
+
+    /***************************************************************************************
      ** CUSTOMERS
      ***************************************************************************************/
 
@@ -195,6 +207,58 @@ class PaymentProcessor
         $this->recordAttempt();
 
         return $cardHolder;
+    }
+
+    /***************************************************************************************
+     ** CONNECT
+     ***************************************************************************************/
+
+    public function getConnectAccount($stripeAccountId)
+    {
+        $account = $this->handler->getConnectAccount($stripeAccountId);
+        $this->recordAttempt();
+
+        return $account;
+    }
+
+    /***************************************************************************************
+     ** BALANCE
+     ***************************************************************************************/
+
+    public function getBalance()
+    {
+        $balance = $this->handler->getBalance();
+        $this->recordAttempt();
+
+        return $balance;
+    }
+
+    public function getConnectBalance($stripeAccountId)
+    {
+        $balance = $this->handler->getConnectBalance($stripeAccountId);
+        $this->recordAttempt();
+
+        return $balance;
+    }
+
+    /***************************************************************************************
+     ** PAYOUT
+     ***************************************************************************************/
+
+    public function createPayout(array $data)
+    {
+        $payout = $this->handler->createPayout($data);
+        $this->recordAttempt();
+
+        return $payout;
+    }
+
+    public function createConnectPayout(array $data, string $stripeAccountId)
+    {
+        $payout = $this->handler->createConnectPayout($data, $stripeAccountId);
+        $this->recordAttempt();
+
+        return $payout;
     }
 
     /***************************************************************************************

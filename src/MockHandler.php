@@ -2,32 +2,41 @@
 
 namespace R64\Stripe;
 
+use Carbon\Carbon;
+use R64\Stripe\Objects\Account;
+use R64\Stripe\Objects\Balance;
 use R64\Stripe\Objects\Card;
 use R64\Stripe\Objects\CardHolder;
 use R64\Stripe\Objects\Charge;
 use R64\Stripe\Objects\Customer;
 use R64\Stripe\Objects\Invoice;
 use R64\Stripe\Objects\InvoiceItem;
+use R64\Stripe\Objects\Payout;
 use R64\Stripe\Objects\Plan;
 use R64\Stripe\Objects\Product;
 use R64\Stripe\Objects\Subscription;
 use R64\Stripe\Objects\Token;
+use R64\Stripe\Objects\Transfer;
 use App\Models\Donation;
 use Faker\Factory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Mockery as m;
+use Stripe\Account as StripeAccount;
+use Stripe\Balance as StripeBalance;
 use Stripe\Card as StripeCard;
 use Stripe\Charge as StripeCharge;
 use Stripe\Customer as StripeCustomer;
 use Stripe\Invoice as StripeInvoice;
 use Stripe\InvoiceItem as StripeInvoiceItem;
 use Stripe\Issuing\Cardholder as StripeCardHolder;
+use Stripe\Payout as StripePayout;
 use Stripe\Plan as StripePlan;
 use Stripe\Product as StripeProduct;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\Token as StripeToken;
+use Stripe\Transfer as StripeTransfer;
 
 class MockHandler implements StripeInterface
 {
@@ -99,6 +108,22 @@ class MockHandler implements StripeInterface
             ]);
 
         return $handler;
+    }
+
+    /*********************************************************************************/
+    /** TRANSFER
+     **********************************************************************************/
+
+    public function createConnectTransfer(array $params)
+    {
+        $stripeTransfer = $this->getMockStripeConnectTransfer($params);
+        $transfer = $stripeTransfer::create($params, $this->stripeConnectParam());
+
+        m::close();
+
+        if ($transfer) {
+            return new Transfer($transfer);
+        }
     }
 
     /*********************************************************************************/
@@ -336,6 +361,84 @@ class MockHandler implements StripeInterface
         }
     }
 
+    /***************************************************************************************
+     ** CONNECT
+     ***************************************************************************************/
+
+    public function getConnectAccount(string $stripeAccountId = null)
+    {
+        $accountClass = $this->getMockStripeAccount('retrieve-account', $stripeAccountId);
+        $account = $accountClass::retrieve($stripeAccountId);
+
+        m::close();
+
+        if ($account) {
+            return new Account($account);
+        }
+    }
+
+    /***************************************************************************************
+     ** BALANCE
+     ***************************************************************************************/
+
+    public function getBalance()
+    {
+        $balanceClass = $this->getMockStripeBalance('retrieve');
+        $balance = $balanceClass::retrieve();
+
+        m::close();
+
+        if ($balance) {
+            return new Balance($balance);
+        }
+    }
+
+    public function getConnectBalance($stripeAccountId)
+    {
+        $stripeAccount = [
+            'stripe_account' => $stripeAccountId,
+        ];
+        $balanceClass = $this->getMockStripeBalance('retrieve-connect', $stripeAccount);
+        $balance = $balanceClass::retrieve($stripeAccount);
+
+        m::close();
+
+        if ($balance) {
+            return new Balance($balance);
+        }
+    }
+
+    /***************************************************************************************
+     ** PAYOUT
+     ***************************************************************************************/
+
+    public function createPayout(array $params)
+    {
+        $payoutClass = $this->getMockStripePayout('create', $params);
+        $payout = $payoutClass::create($params);
+
+        m::close();
+
+        if ($payout) {
+            return new Payout($payout);
+        }
+    }
+
+    public function createConnectPayout(array $params, string $stripeAccountId)
+    {
+        $stripeAccount = [
+            'stripe_account' => $stripeAccountId,
+        ];
+        $payoutClass = $this->getMockStripePayout('create-connect', $params, $stripeAccount);
+        $payout = $payoutClass::create($params, $stripeAccount);
+
+        m::close();
+
+        if ($payout) {
+            return new Payout($payout);
+        }
+    }
+
     /*********************************************************************************
      ** TOKEN
      *********************************************************************************/
@@ -400,10 +503,6 @@ class MockHandler implements StripeInterface
                 'currency' => $params['currency'],
                 'source' => $params['source'],
                 'description' => $params['description'],
-                'transfer_data' => [
-                    'amount' => $params['transfer_data']['amount'],
-                    'destination' => $params['transfer_data']['destination'],
-                ],
             ], $this->stripeConnectParam())
             ->andReturn($this->getStripeCharge($params));
 
@@ -432,6 +531,42 @@ class MockHandler implements StripeInterface
         ];
 
         return $charge;
+    }
+
+    /***************************************************************************************
+     ** STRIPE TRANSFER
+     ***************************************************************************************/
+
+    private function getMockStripeConnectTransfer($params)
+    {
+        $transfer = m::mock('alias:StripeTransfer');
+
+        $transfer
+            ->shouldReceive('create')
+            ->with([
+                'amount' => $params['amount'],
+                'currency' => $params['currency'],
+                'source_transaction' => $params['source_transaction'],
+                'destination' => $params['destination'],
+            ], $this->stripeConnectParam())
+            ->andReturn($this->getStripeTransfer($params));
+
+        $this->successful = true;
+
+        return $transfer;
+    }
+
+    private function getStripeTransfer($params)
+    {
+        $transfer = new StripeTransfer(['id' => $params['id'] ?? 'tr_1']);
+
+        $transfer->amount = $params['amount'];
+        $transfer->currency = $params['currency'];
+        $transfer->destination = $params['destination'];
+        $transfer->source_transaction = $params['source_transaction'];
+        $transfer->created = time();
+
+        return $transfer;
     }
 
     /***************************************************************************************
@@ -561,6 +696,8 @@ class MockHandler implements StripeInterface
         $subscription->current_period_start = time();
         $subscription->days_until_due = $faker->numberBetween(1, 30);
         $subscription->created = time();
+        $subscription->latest_invoice = null;
+        $subscription->collection_method = 'charge_automatically';
 
         return $subscription;
     }
@@ -899,5 +1036,188 @@ class MockHandler implements StripeInterface
         $card->address_zip_check = Arr::get($params, 'address_zip_check');
 
         return $card;
+    }
+
+    /***************************************************************************************
+     ** CONNECT
+     ***************************************************************************************/
+
+    private function getMockStripeAccount(string $slug, $stripeAccountId = null)
+    {
+        $account = m::mock('alias:StripeAccount');
+
+        switch ($slug) {
+            case 'retrieve-account':
+                $account
+                    ->shouldReceive('retrieve')
+                    ->with($stripeAccountId)
+                    ->andReturn($this->getStripeAccount($stripeAccountId));
+
+                break;
+        }
+
+        $this->successful = true;
+
+        return $account;
+    }
+
+    private function getStripeAccount($stripeAccountId = null)
+    {
+        $account = new StripeAccount($stripeAccountId);
+
+        $account->object = 'account';
+        $account->email = 'account@example.com';
+        $account->business_profile = (object) [
+            'name' => 'A business name',
+            'support_phone' => '+15555555555',
+            'support_url' => 'https://www.example.com/support',
+            'url' => 'https://www.example.com',
+        ];
+        $account->business_type = StripeAccount::BUSINESS_TYPE_COMPANY;
+        $account->created = Carbon::now()->timestamp;
+
+        return $account;
+    }
+
+    /***************************************************************************************
+     ** BALANCE
+     ***************************************************************************************/
+
+    private function getMockStripeBalance(string $slug, $params = [])
+    {
+        $balance = m::mock('alias:StripeBalance');
+
+        switch ($slug) {
+            case 'retrieve':
+                $balance
+                    ->shouldReceive('retrieve')
+                    ->andReturn($this->getStripeBalance());
+
+                break;
+
+            case 'retrieve-connect':
+                $balance
+                    ->shouldReceive('retrieve')
+                    ->with($params)
+                    ->andReturn($this->getStripeBalance());
+
+                break;
+        }
+
+        $this->successful = true;
+
+        return $balance;
+    }
+
+    private function getStripeBalance()
+    {
+        $balance = new StripeBalance();
+
+        $balance->object = 'balance';
+        $balance->available = [
+            (object) [
+                "amount" => 1500,
+                "currency" => "usd",
+                "source_types" => (object) [
+                    "card" => 0,
+                ],
+            ],
+            (object) [
+                "amount" => 2000,
+                "currency" => "eur",
+                "source_types" => (object) [
+                    "card" => 0,
+                ],
+            ],
+        ];
+        $balance->connect_reserved = [
+            [
+                "amount" => 0,
+                "currency" => "usd",
+            ],
+        ];
+        $balance->livemode = false;
+        $balance->pending = [
+            (object) [
+                "amount" => 1000,
+                "currency" => "usd",
+                "source_types" => (object) [
+                    "card" => 0,
+                ],
+            ],
+            (object) [
+                "amount" => 500,
+                "currency" => "eur",
+                "source_types" => (object) [
+                    "card" => 0,
+                ],
+            ],
+        ];
+
+        return $balance;
+    }
+
+    /***************************************************************************************
+     ** PAYOUT
+     ***************************************************************************************/
+
+    private function getMockStripePayout(string $slug, $params = [], $stripeConnectParams = [])
+    {
+        $payout = m::mock('alias:StripePayout');
+
+        switch ($slug) {
+            case 'create':
+                $payout
+                    ->shouldReceive('create')
+                    ->with([
+                        'amount' => $params['amount'],
+                        'currency' => $params['currency'],
+                    ])
+                    ->andReturn($this->getStripePayout($params));
+
+                break;
+
+            case 'create-connect':
+                $payout
+                    ->shouldReceive('create')
+                    ->with([
+                        'amount' => $params['amount'],
+                        'currency' => $params['currency'],
+                    ], $stripeConnectParams)
+                    ->andReturn($this->getStripePayout($params));
+
+                break;
+        }
+
+        $this->successful = true;
+
+        return $payout;
+    }
+
+    private function getStripePayout(array $params)
+    {
+        $payout = new StripePayout(['id' => 'po_1234']);
+
+        $payout->object = 'payout';
+        $payout->amount = $params['amount'] ?? null;
+        $payout->currency = $params['currency'] ?? null;
+        $payout->arrival_date = Carbon::now()->timestamp;
+        $payout->automatic = true;
+        $payout->balance_transaction = 'txn_1HRbbY2tXu0CfXKw0glH0ieS';
+        $payout->created = Carbon::now()->timestamp;
+        $payout->description = null;
+        $payout->destination = 'ba_1HRbbaCPpDa9U5gSci2TmFbi';
+        $payout->failure_balance_transaction = null;
+        $payout->failure_code = null;
+        $payout->failure_message = null;
+        $payout->livemode = false;
+        $payout->metadata = (object) [];
+        $payout->method = 'standard';
+        $payout->source_type = 'card';
+        $payout->statement_descriptor = null;
+        $payout->status = 'in_transit';
+        $payout->type = 'bank_account';
+
+        return $payout;
     }
 }

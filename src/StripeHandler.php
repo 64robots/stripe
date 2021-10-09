@@ -2,27 +2,35 @@
 
 namespace R64\Stripe;
 
+use R64\Stripe\Objects\Account;
+use R64\Stripe\Objects\Balance;
 use R64\Stripe\Objects\Card;
 use R64\Stripe\Objects\Charge;
 use R64\Stripe\Objects\Customer;
 use R64\Stripe\Objects\Invoice;
 use R64\Stripe\Objects\InvoiceItem;
+use R64\Stripe\Objects\Payout;
 use R64\Stripe\Objects\Plan;
 use R64\Stripe\Objects\Product;
 use R64\Stripe\Objects\Subscription;
 use R64\Stripe\Objects\Token;
+use R64\Stripe\Objects\Transfer;
 use Exception;
 use Illuminate\Support\Arr;
+use Stripe\Account as StripeAccount;
+use Stripe\Balance as StripeBalance;
 use Stripe\Charge as StripeCharge;
 use Stripe\Customer as StripeCustomer;
 use Stripe\Invoice as StripeInvoice;
 use Stripe\InvoiceItem as StripeInvoiceItem;
 use Stripe\Issuing\Card as StripeCard;
+use Stripe\Payout as StripePayout;
 use Stripe\Plan as StripePlan;
 use Stripe\Product as StripeProduct;
 use Stripe\Stripe;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\Token as StripeToken;
+use Stripe\Transfer as StripeTransfer;
 
 class StripeHandler implements StripeInterface
 {
@@ -86,6 +94,18 @@ class StripeHandler implements StripeInterface
         $charge = $this->attemptRequest('create-charge', $params);
         if ($charge) {
             return new Charge($charge);
+        }
+    }
+
+    /***************************************************************************************
+     ** TRANSFERS
+     ***************************************************************************************/
+
+    public function createConnectTransfer(array $params)
+    {
+        $transfer = $this->attemptRequest('create-transfer', $params);
+        if ($transfer) {
+            return new Transfer($transfer);
         }
     }
 
@@ -284,6 +304,61 @@ class StripeHandler implements StripeInterface
         }
     }
 
+    /***************************************************************************************
+     ** CONNECT
+     ***************************************************************************************/
+
+    public function getConnectAccount(string $stripeAccountId, bool $noWrapper = false)
+    {
+        $account = $this->attemptRequest('get-account', $stripeAccountId);
+
+        if ($account) {
+            return $noWrapper ? $account : new Account($account);
+        }
+    }
+
+    /***************************************************************************************
+     ** BALANCE
+     ***************************************************************************************/
+
+    public function getBalance(bool $noWrapper = false)
+    {
+        $balance = $this->attemptRequest('get-balance');
+        if ($balance) {
+            return $noWrapper ? $balance : new Balance($balance);
+        }
+    }
+
+    public function getConnectBalance(string $stripeAccountId, bool $noWrapper = false)
+    {
+        $balance = $this->attemptRequest('get-balance', ['stripe_account' => $stripeAccountId]);
+
+        if ($balance) {
+            return $noWrapper ? $balance : new Balance($balance);
+        }
+    }
+
+    /***************************************************************************************
+     ** PAYOUT
+     ***************************************************************************************/
+
+    public function createPayout(array $params, bool $noWrapper = false)
+    {
+        $payout = $this->attemptRequest('create-payout', $params);
+        if ($payout) {
+            return $noWrapper ? $payout : new Payout($payout);
+        }
+    }
+
+    public function createConnectPayout(array $params, string $stripeAccountId, bool $noWrapper = false)
+    {
+        $payout = $this->attemptRequest('create-payout', $params, ['stripe_account' => $stripeAccountId]);
+        if ($payout) {
+            return $noWrapper ? $payout : new Payout($payout);
+        }
+    }
+
+
     /*****************************************************************************************
      ** TOKEN
      *****************************************************************************************/
@@ -309,6 +384,10 @@ class StripeHandler implements StripeInterface
                 break;
             case 'create-charge':
                 return StripeCharge::create($params[0], $this->stripeConnectParam());
+
+                break;
+            case 'create-transfer':
+                return StripeTransfer::create($params[0], $this->stripeConnectParam());
 
                 break;
             case 'list-customers':
@@ -383,6 +462,18 @@ class StripeHandler implements StripeInterface
                 break;
             case 'update-card':
                 return StripeCard::update($params[0], $params[1], $this->stripeConnectParam());
+
+                break;
+            case 'get-balance':
+                return StripeBalance::retrieve($params[0]);
+
+                break;
+            case 'create-payout':
+                return StripePayout::create($params[0], $params[1]);
+
+                break;
+            case 'get-account':
+                return StripeAccount::retrieve($params[0]);
 
                 break;
         }

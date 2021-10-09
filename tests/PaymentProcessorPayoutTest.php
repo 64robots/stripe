@@ -2,40 +2,38 @@
 
 namespace R64\Stripe\Tests;
 
-class PaymentProcessorChargeTest extends TestCase
+class PaymentProcessorPayoutTest extends TestCase
 {
     /**
      * @test
      */
-    public function can_create_charge()
+    public function can_create_payout()
     {
-        $this->processor->createCharge([
-            'customer' => 1,
-            'amount' => 10,
+        $payout = $this->processor->createPayout([
+            'amount' => 1100,
             'currency' => 'usd',
-            'source' => 'tok_visa'
         ]);
-        
+
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
+        $this->assertEquals('R64\Stripe\Objects\Payout', get_class($payout));
     }
 
     /**
      * @test
      */
-    public function can_create_connect_charge()
+    public function can_create_connect_payout()
     {
-        $this->processor->createConnectCharge([
-            'customer' => 1,
-            'amount' => 10,
+        $stripeAccountId = 'acct_1';
+        $payout = $this->processor->createConnectPayout([
+            'amount' => 1100,
             'currency' => 'usd',
-            'source' => 'tok_visa',
-            'description' => 'a description',
-        ]);
+        ], $stripeAccountId);
 
         $this->assertTrue($this->processor->attemptSuccessful());
         $this->assertEquals('', $this->processor->getErrorMessage());
         $this->assertEquals('', $this->processor->getErrorType());
+        $this->assertEquals('R64\Stripe\Objects\Payout', get_class($payout));
     }
 }
