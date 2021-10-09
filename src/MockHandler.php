@@ -695,8 +695,6 @@ class MockHandler implements StripeInterface
         $subscription->current_period_start = time();
         $subscription->days_until_due = $faker->numberBetween(1, 30);
         $subscription->created = time();
-        $subscription->latest_invoice = null;
-        $subscription->collection_method = 'charge_automatically';
 
         return $subscription;
     }
