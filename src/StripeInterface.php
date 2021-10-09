@@ -11,4 +11,6 @@ interface StripeInterface
     public function getCustomer(string $id);
 
     public function updateCustomer(array $data);
+
+    public function getConnectAccount(string $accountId);
 }
